@@ -1,55 +1,46 @@
 #include "pcb.h"
 
-/*
-*L'implementazione consiste nell'iterare per ogni indice dell'array
-*e settare i puntatori prev e next in base alla posizione dell'indice.
-*I casi particolari sono il prev quando i = 0 ed il next quand i = MAXPROC
-*Sentinella punta alla testa.
-*/
+
 void initPcbs()
 {
-    for (int i = 0; i < MAXPROC; i++)
+    for (int i = 0; i < MAXPROC; i++)  //iteriamo per ogni indice dell'array
     {
-        pcb_PTR pcb = &pcbFree_table[i];
+        pcb_PTR pcb = &pcbFree_table[i];  //puntatore al pcb con indice i
 
-        if (i < MAXPROC - 1)
+        if (i < MAXPROC - 1)  //per tutti gli indici tranne l'ultimo il next dev'essere il prossimo elemento dell'array
         {
             pcb->p_next = &pcbFree_table[i + 1];
         }
         else
         {
-            pcb->p_next = &pcbFree_table[0];
+            pcb->p_next = &pcbFree_table[0];  //il next dell'ultimo elemento e' il primo
         }
 
-        if (i > 0)
+        if (i > 0)  //per tutti gli indici dell'array tranne il primo il prev dev'essere l'elemento precedente
         {
             pcb->p_prev = &pcbFree_table[i - 1];
         }
 
         else
         {
-            pcb->p_prev = &pcbFree_table[MAXPROC - 1];
-            sentinella = pcb;
+            pcb->p_prev = &pcbFree_table[MAXPROC - 1];  //il prev del primo elemento e' l'ultimo
+            sentinella = pcb;  //sentinella punta al primo elemento
         }
     }
 }
 
-/*
-*L'implementazione consiste nell'inserimento in coda di p
-*cambiando tutti i puntatori interessati. Se la lista e' vuota
-*P diventa la sentinella
-*/
+
 void freePcb(pcb_t * p)
 {
-    if (sentinella != NULL)
+    if (sentinella != NULL)  //se la lista non e' vuota
     {
-        pcb_PTR tail = sentinella->p_prev;
-        sentinella->p_prev = p;
+        pcb_PTR tail = sentinella->p_prev;  //inserimento in coda, ovvero il prev della sentinella
+        sentinella->p_prev = p;  //aggiustiamo i puntatori interessati
         tail->p_next = p;
         p->p_prev = tail;
         p->p_next = sentinella;
     }
-    else
+    else  //se la lista e' vuota p diventa l'unico elemento e la sentinella punta come p.
     {
         p->p_prev = p;
         p->p_next = p;
@@ -57,107 +48,115 @@ void freePcb(pcb_t * p)
     }   
 }
 
-/*
-*L'implementazione consiste nel restituire il primo elemento della lista
-*qundi si aggiornano i puntatori per cambiare la testa della lista
-*dopodiche' si settano a NULL i campi della vecchia testa e la si restituisce.
-*Se la sentinella e' NULL la lista e' vuota e si restituisce NULL.
-*/
+
 pcb_t *allocPcb()
 {
-    if (sentinella == NULL)
+    if (sentinella == NULL)  //se la lista e' vuota sentinella e' NULL
     {
         return NULL;
     }
     else
     {
-        pcb_PTR head = sentinella;
-        head->p_next->p_prev = head->p_prev;
-        head->p_prev->p_next = head->p_next;
-        sentinella = head->p_next;
-        head->p_next = NULL;
-        head->p_prev = NULL;
-        head->p_child = NULL;
-        head->p_prev = NULL;
-        head->p_prev_sib = NULL;
-        head->p_prnt = NULL;
-        //head->p_s = 0;
-        return head;
+        pcb_PTR head = sentinella;  //head punta alla testa della lista ed e' l'elemento da ritornare ed eliminare
+        if (head->p_next != head && head->p_prev != head)  //se head non e' l'unico elemento della lista
+        {
+            head->p_next->p_prev = head->p_prev;  //aggiorniamo i puntatori
+            head->p_prev->p_next = head->p_next;
+            sentinella = head->p_next;  //aggiorniamo la sentinella
+            head->p_next = NULL;  //inizializziamo i campi a NULL
+            head->p_prev = NULL;
+            head->p_child = NULL;
+            head->p_prev = NULL;
+            head->p_prev_sib = NULL;
+            head->p_prnt = NULL;
+            //head->p_s = 0;
+        }
+        else  //la lista ha un solo elemento
+        {
+            sentinella = NULL;  //la lista si svuota quindi sentinella diventa NULL
+            head->p_next = NULL;  //inizializziamo i campi a NULL
+            head->p_prev = NULL;
+            head->p_child = NULL;
+            head->p_prev = NULL;
+            head->p_prev_sib = NULL;
+            head->p_prnt = NULL;
+            //head->p_s = 0;
+        }
+        return head;  //ritorniamo la vecchia testa della lista   
     }
 }
 
-//Ritorna semplicemente NULL
+
 pcb_t* mkEmptyProcQ()
 {
-    return NULL;
+    return NULL;  //ritorna semplicemente NULL
 }
 
-//ritorna true se tp = NULL
+
 int emptyProcQ(pcb_t *tp)
 {
-    return tp == NULL;
+    return tp == NULL;  //ritorna true se tp = NULL
 }
 
-/*
-*Se la lista puntata da tp non e' vuota, allora
-*inserisce p in coda e e cambia il puntatore alla coda
-*Se la lista puntata da tp e' vuota crea una lista
-*costituita solo da p e aggiorna il puntatore alla coda
-*/
+
 void insertProcQ(pcb_t **tp, pcb_t* p)
 {
-    if ((*tp) != NULL)
+    if ((*tp) != NULL)  //se la lista non e' vuota
     {
-        pcb_PTR tail = *tp;
-        p->p_prev = tail;
+        pcb_PTR tail = *tp;  //prendiamo la coda della lista
+        p->p_prev = tail;  //aggiorniamo i puntatori per inserire p in coda
         p->p_next = tail->p_next;
         tail->p_next->p_prev = p;
         tail->p_next = p;
-        (*tp) = p;
+        (*tp) = p;  //tp ora punta alla nuova coda che e' p
     }
-    else
+    else  //se la coda e' vuota
     {
-        p->p_next = p;
+        p->p_next = p;  //viene inserito p
         p->p_prev = p;
-        (*tp) = p;
+        (*tp) = p;  //tp punta a p che e' l'unico elemento della coda
     } 
 }
 
-/*
-*Se la coda e' vuota ritorna NULL
-*Altrimenti ritorna l'ultimo elemento
-*/
+
 pcb_t* headProcQ(pcb_t **tp)
 {
-    if (*tp == NULL)
+    if (*tp == NULL)  //se la coda non ha elementi tp e' NULL
     {
         return NULL;
     }
     else
     {
-        return *tp;
+        return *tp;  //altrimenti ritorniamo l'elemento puntato da tp
     }
     
 }
 
-/*
-*Se la coda e' vuota ritorna NULL
-*Altrimenti prende la testa della lista
-*aggiorna i puntatori per rimuoverla e la restituisce.
-*/
-pcb_t* removeProcQ(pcb_t **tp)
+
+pcb_t* removeProcQ(pcb_t **tp)  //l'elemento piu' vecchio della coda e' la testa per com'e' strutturata
 {
-    if (*tp == NULL)
+    if (*tp == NULL)  //la coda e' vuota
     {
         return NULL;
     }
     else
     {
-        pcb_PTR tail = *tp;
-        pcb_PTR head = tail->p_next;
-        tail->p_next = head->p_next;
-        head->p_next->p_prev = tail;
-        return head;
+        pcb_PTR tail = *tp;  //tail e' l'ultimo elemento della coda
+        pcb_PTR head = tail->p_next;  //tail.prev e' il primo elemento quindi la testa
+        if (head == tail)  //se la coda ha un solo elemento
+        {
+            head->p_next = NULL;
+            head->p_prev = NULL;
+            (*tp) = NULL;  //la coda si svuota
+        }
+        else  //la coda non ha un solo elemento
+        {
+            tail->p_next = head->p_next;  //aggiorniamo i puntatori
+            head->p_next->p_prev = tail;
+            head->p_next = NULL;
+            head->p_prev = NULL;
+        }
+        return head;  //ritoniamo head
     }  
 }
 
@@ -182,8 +181,8 @@ pcb_t* outProcQ(pcb_t **tp, pcb_t *p)
             }
             
         }
-        if (pcb == p)               //se p e' l'elemento in coda lo rimuove ed aggiorna il puntatore alla coda
-        {
+        if (pcb == p  &&  pcb->p_next != pcb  && pcb->p_prev != pcb) //se p e' l'elemento in coda e non e' l'unico elemento
+        {                                                            //lo rimuove ed aggiorna il puntatore alla coda
             pcb->p_prev->p_next = pcb->p_next;
             pcb->p_next->p_prev = pcb->p_prev;
             (*tp) = pcb->p_prev;
@@ -191,7 +190,13 @@ pcb_t* outProcQ(pcb_t **tp, pcb_t *p)
             pcb->p_next = NULL;
             return pcb;
         }
-        
+        else if (pcb == p  &&  pcb->p_next == pcb  &&  pcb->p_prev == pcb)  //p e' presente ed e' l'unico elemento della coda
+        {
+            pcb->p_next = NULL;
+            pcb->p_prev = NULL;
+            (*tp) = NULL;  //la coda si svuota
+            return pcb;
+        }      
     }
     return NULL;                  //caso base torna NULL
     
@@ -208,13 +213,13 @@ void insertChild(pcb_t *prnt, pcb_t *p)
     {
         prnt->p_child = p;  //inserisce p come figlio di prnt
         p->p_prnt = prnt;  //prnt diventa padre di p
-        p->p_next_sib = p;  //p diventa una lista che punta a se stessa
+        p->p_next_sib = p;  //p diventa una lista di un solo elemento
         p->p_prev_sib = p;
     }
     else  //se prnt ha gia' un figlio
     {
         pcb_PTR pcb = prnt->p_child;  //pcb punta alla testa della lista dei figli di prnt
-        pcb->p_prev_sib->p_next_sib = p;  //inserimento di p in testa alla lista dei figli
+        pcb->p_prev_sib->p_next_sib = p;  //inserimento di p in testa alla lista dei figli (aggionamento puntatori)
         p->p_prev_sib = pcb->p_prev_sib;
         p->p_next_sib = pcb;
         pcb->p_prev_sib = p;
