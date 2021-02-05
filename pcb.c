@@ -69,7 +69,9 @@ pcb_t *allocPcb()
             head->p_prev = NULL;
             head->p_prev_sib = NULL;
             head->p_prnt = NULL;
-            //head->p_s = 0;
+            head->p_semAdd = NULL;
+            head->p_time = 0;
+            //head->p_s = 0  dobbiamo vedere come inizializzare questo campo!
         }
         else  //la lista ha un solo elemento
         {
@@ -80,6 +82,8 @@ pcb_t *allocPcb()
             head->p_prev = NULL;
             head->p_prev_sib = NULL;
             head->p_prnt = NULL;
+            head->p_semAdd = NULL;
+            head->p_time = 0;
             //head->p_s = 0;
         }
         return head;  //ritorniamo la vecchia testa della lista   
@@ -127,13 +131,13 @@ pcb_t* headProcQ(pcb_t **tp)
     }
     else
     {
-        return *tp;  //altrimenti ritorniamo l'elemento puntato da tp
+        return (*tp)->p_prev;  //altrimenti ritorniamo l'elemento in testa
     }
     
 }
 
 
-pcb_t* removeProcQ(pcb_t **tp)  //l'elemento piu' vecchio della coda e' la testa per com'e' strutturata
+pcb_t* removeProcQ(pcb_t **tp)  //l'elemento piu' vecchio della coda e' la testa
 {
     if (*tp == NULL)  //la coda e' vuota
     {

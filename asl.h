@@ -1,5 +1,35 @@
 #include "pandos_const.h"
 #include "pandos_types.h"
+#include "pcb.h"
+
+typedef struct semd_t {
+
+/* ptr to next element on queue */
+ struct semd_t *s_next;
+
+/* ptr to the semaphore */
+ int *s_semAdd;
+
+/* ptr to tail of the queue of procs.
+blocked on this sem. */
+pcb_PTR s_procQ;
+
+} semd_t, *semd_PTR;
+
+
+
+/*array di SEMD con dimensione massima di
+MAX_PROC. */
+HIDDEN semd_t semd_table[MAXPROC];
+
+/*Lista dei SEMD liberi o
+inutilizzati.*/
+HIDDEN semd_PTR semdFree_h;
+
+/*Lista dei semafori attivi*/
+HIDDEN semd_PTR semd_h;
+
+
 
 /*
 *Viene inserito il PCB puntato da p nella coda dei
