@@ -3,7 +3,7 @@ Si prendono processi dalla pcbFree (se possibile) e li si mettono
 Nelle code dei processi bloccati su un semaforo.
 Ogni semaforo ha un puntatore alla coda dei processi.
 Tutti gli inserimenti nelle code dei semafori avvengono quindi in coda
-passando l'indirizzo del puntatore alla coda (puntatore doppio della funzione)
+passando l'indirizzo del puntatore alla coda (puntatore doppio nella funzione)
 cosi' da poter poi modificare il puntatore alla coda dopo l'inserimento.
 Quindi le funzioni sulla gestione delle code dichiarate nel file pcb.h
 (quelle con suffisso Q) sono utilizzate dalle funzioni per la gestione
