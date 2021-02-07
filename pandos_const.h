@@ -7,7 +7,7 @@
  *
  ****************************************************************************/
 
-#include <umps3/umps/const.h>
+#include <umps/const.h>
 
 /* Mikeyg Added constants */
 

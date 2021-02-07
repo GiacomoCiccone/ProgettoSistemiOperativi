@@ -1,5 +1,7 @@
 #include "pcb.h"
 
+HIDDEN pcb_t pcbFree_table[MAXPROC];
+HIDDEN pcb_PTR sentinella;
 
 void initPcbs()
 {
@@ -125,13 +127,13 @@ void insertProcQ(pcb_t **tp, pcb_t* p)
 
 pcb_t* headProcQ(pcb_t **tp)
 {
-    if (*tp == NULL)  //se la coda non ha elementi tp e' NULL
+    if (!(*tp))  //se la coda non ha elementi tp e' NULL
     {
         return NULL;
     }
     else
     {
-        return (*tp)->p_prev;  //altrimenti ritorniamo l'elemento in testa
+        return (*tp)->p_next;  //altrimenti ritorniamo l'elemento in testa
     }
     
 }
@@ -181,7 +183,7 @@ pcb_t* outProcQ(pcb_t **tp, pcb_t *p)
             }
             else
             {
-                pcb = pcb->p_next_sib;
+                pcb = pcb->p_next;
             }
             
         }
@@ -308,8 +310,3 @@ pcb_t *outChild(pcb_t* p)
     return NULL;  //caso base
 }
 
-
-int main()
-{
-    return 0;
-}
