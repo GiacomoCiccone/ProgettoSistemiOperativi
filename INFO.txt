@@ -9,9 +9,9 @@ Quindi le funzioni sulla gestione delle code dichiarate nel file pcb.h
 (quelle con suffisso Q) sono utilizzate dalle funzioni per la gestione
 dei semafori (quelle nei file asl).
 
-Bisogna effettuare dei test per vedere la correttezza delle implementazioni
-di tutte le funzioni. In particolare le funzioni dei semafori che non fanno
-chiudere correttamente la procedura di test.
-Successivamente bisognerebbe provare ad ottimizzare il codice introducendo
-funzioni per evitare di scrivere troppe operaioni che si ripetono e per
-semplificarne la lettura.
+La procedura si p1test.c si chiude correttamente con il mio test, ora mancano
+i vostri test che vi chiedo di effettuare seguendo la miniguida che e'
+pinnata sul gruppo telegram del progetto. Se a tutti noi make compila bene
+e la procedura su umps3 si chiude con successo (ovvero viene mostrato
+"system halted" come ultimo messaggio in windows -> terminal 0") allora
+possiamo consegnare.

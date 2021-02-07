@@ -2,14 +2,14 @@
 
 int insertBlocked(int *semAdd,pcb_t *p)
 {
-    if (semd_h = NULL)  //ASL VUOTA
+    if (semd_h == NULL)  //ASL VUOTA
     {
         semd_PTR semd = semdFree_h;  //prende la testa della lista di semdFree
         semdFree_h = semd->s_next;  //stacca la testa dalla lista di semdFree
         semd->s_next = NULL;
         semd_h = semd;  //semd diventa la testa dell'ASL
         semd->s_semAdd = semAdd;
-        semd->s_procQ = p;  //coda dei processi
+        insertProcQ(&(semd->s_procQ), p);  //coda dei processi
         p->p_semAdd = semd->s_semAdd;
         return FALSE;
     }
@@ -20,8 +20,7 @@ int insertBlocked(int *semAdd,pcb_t *p)
         {
             if (semd->s_semAdd == semAdd)  //se troviamo il semaforo giusto
             {
-                pcb_PTR tail = semd->s_procQ;  //puntatore alla coda dei processi
-                insertProcQ(&tail, p);  //inseriamo in coda alla coda dei processi
+                insertProcQ(&(semd->s_procQ), p);  //inseriamo in coda alla coda dei processi
                 p->p_semAdd = semd->s_semAdd;
                 return FALSE;
             }
@@ -33,7 +32,7 @@ int insertBlocked(int *semAdd,pcb_t *p)
             semdFree_h = semd->s_next;  //stacca la testa dalla lista di semdFree
             semd->s_next = semd_h;
             semd_h = semd;  //semd diventa la nuova testa dell'ASL
-            semd->s_procQ = p;  //p diventa la coda dei processi di semd
+            insertProcQ(&(semd->s_procQ), p);  //p diventa la coda dei processi di semd
             semd->s_semAdd = semAdd;  //prende l'indirizzo che non era presente
             p->p_semAdd = semd->s_semAdd;
             return FALSE;
@@ -53,9 +52,8 @@ pcb_t* removeBlocked(int *semAdd)
     {
         if(semd->s_semAdd == semAdd)  //se lo abbiamo trovato
         {
-            pcb_PTR tail = semd->s_procQ;
-            pcb_PTR pcb = removeProcQ(&tail);
-            if (emptyProcQ(tail))  //se dopo l'eliminazione di p semd si svuota
+            pcb_PTR pcb = removeProcQ(&(semd->s_procQ));
+            if (emptyProcQ((semd->s_procQ)))  //se dopo l'eliminazione di p semd si svuota
             {
                 if (semd == semd_h)  //il semaforo da eliminare dalla ASL e' la testa della ASL
                 {
@@ -90,8 +88,7 @@ pcb_t* outBlocked(pcb_t *p)
     {
         if(semd->s_semAdd == semAdd)  //se lo abbiamo trovato
         {
-            pcb_PTR tail = semd->s_procQ;
-            return outProcQ(&tail, p);  //se p non e' presente ritorna NULL altrimenti ritorna p e lo elimina
+            return outProcQ(&(semd->s_procQ), p);  //se p non e' presente ritorna NULL altrimenti ritorna p e lo elimina
             // si deve anche in questo caso eliminare il semaforo dalla ASL se dopo l'eliminazione la sua coda dei processi e' vuota?
         }
         semd = semd->s_next;
@@ -114,10 +111,9 @@ pcb_t* headBlocked(int *semAdd)
             else
             {
                 return headProcQ(&semd->s_procQ);  //ritorna la testa della lista
-            }
-                
+            }      
         }
-            
+        semd = semd->s_next;  
     }
     return NULL;  //il semaforo con quell'indirizzo non e' nell'ASL oppure l'ASL e' vuota
 }  
@@ -135,7 +131,9 @@ void initASL()
         else
         {
             semd->s_next = NULL;  //se siamo arrivati all'ultimo indice il next e' null
-        } 
+        }
+        semd->s_semAdd = NULL;
+        semd->s_procQ = NULL;
     }
     semd_h = NULL;  //inizialmente ASL e' vuota
     semdFree_h = &semd_table[0];  //la lista semdfree e' rappresentata da un puntatore al primo elemento
