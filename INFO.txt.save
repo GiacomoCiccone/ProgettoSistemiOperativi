@@ -1,0 +1,23 @@
+Informazioni sul progetto acquisite sin'ora
+Si prendono processi dalla pcbFree (se possibile) e li si mettono
+Nelle code dei processi bloccati su un semaforo.
+Ogni semaforo ha un puntatore alla coda dei processi.
+Tutti gli inserimenti nelle code dei semafori avvengono quindi in coda
+passando l'indirizzo del puntatore alla coda (puntatore doppio della funzione)
+cosi' da poter poi modificare il puntatore alla coda dopo l'inserimento.
+Quindi le funzioni sulla gestione delle code dichiarate nel file pcb.h
+(quelle con suffisso Q) sono utilizzate dalle funzioni per la gestione
+dei semafori (quelle nei file asl).
+
+Sono stati effettuati tutti i test e la procedura p1test.c si chiude con
+successo, quindi teoricamente le funzioni sono tutte corrette.
+A questo punto mancano solo i vostri test per vedere se compila usando make e per farlo seguite questi passaggi:
+Dopo aver clonato la repository, eliminate tutti i file tranne quelli con
+estensione c, h ed il makefile. Successivamente, assicuratevi di aver
+installato umps3 sulla vostra macchina e provate ad usare il comando make.
+Se va tutto secondo i piani troverete diversi file dovuti alla compilazione.
+Ora aprite umps3 e fate "create new a machine configuration" selezionando
+la cartella dove sono i file e create. Fate partire la macchina premendo
+il pulsante verde e poi cliccate "continue". A questo punto potete cliccare
+in alto su "windows" e "terminal 0", se la procedura si conlude bene
+dovreste leggere "system halted" come ultimo messaggio.

@@ -57,7 +57,7 @@ void insertProcQ(pcb_t **tp, pcb_t* p);
 *dei processi tp, SENZA RIMUOVERLO.
 *Ritorna NULL se la coda non ha elementi.
 */
-pcb_t *headProcQ(pcb_t **tp);
+pcb_t *headProcQ(pcb_t *tp);
 
 
 /*

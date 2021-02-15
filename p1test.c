@@ -170,7 +170,7 @@ void main() {
 	if (emptyProcQ(qa)) adderrbuf("emptyProcQ: unexpected TRUE"   );
 
 	/* Check outProc and headProc */
-	if (headProcQ(&qa) != firstproc)
+	if (headProcQ(qa) != firstproc)
 		adderrbuf("headProcQ failed   ");
 	q = outProcQ(&qa, firstproc);
 	if (q == NULL || q != firstproc)

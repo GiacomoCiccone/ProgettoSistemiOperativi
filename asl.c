@@ -110,7 +110,7 @@ pcb_t* headBlocked(int *semAdd)
             }
             else
             {
-                return headProcQ(&semd->s_procQ);  //ritorna la testa della lista
+                return headProcQ(semd->s_procQ);  //ritorna la testa della lista
             }      
         }
         semd = semd->s_next;  

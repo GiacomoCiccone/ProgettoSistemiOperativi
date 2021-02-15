@@ -125,15 +125,15 @@ void insertProcQ(pcb_t **tp, pcb_t* p)
 }
 
 
-pcb_t* headProcQ(pcb_t **tp)
+pcb_t* headProcQ(pcb_t *tp)
 {
-    if (!(*tp))  //se la coda non ha elementi tp e' NULL
+    if (!tp)  //se la coda non ha elementi tp e' NULL
     {
         return NULL;
     }
     else
     {
-        return (*tp)->p_next;  //altrimenti ritorniamo l'elemento in testa
+        return tp->p_next;  //altrimenti ritorniamo l'elemento in testa
     }
     
 }
