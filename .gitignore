@@ -1,10 +1,9 @@
+.vscode
+.git
+
 #output compilazione
 out/
 out/*
 *.o
 *.umps
 *.kernel
-
-#librerie umps
-!libumps.o
-!crtso.o
