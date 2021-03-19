@@ -1,5 +1,5 @@
-#include "pandos_const.h"
-#include "pandos_types.h"
+#include "../pandos_const.h"
+#include "../pandos_types.h"
 #include "pcb.h"
 
 typedef struct semd_t {

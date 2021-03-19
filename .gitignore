@@ -1,0 +1,9 @@
+.vscode
+.git
+
+#output compilazione
+out/
+out/*
+*.o
+*.umps
+*.kernel
