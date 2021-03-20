@@ -10,3 +10,5 @@ int sb_count;         //soft-block count
 pcb_PTR ready_q;      //ready queue
 pcb_PTR curr_proc;    //current process
 int dev_sem[SEM_NUM]; //device semaphores
+
+extern void test();
