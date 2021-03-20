@@ -51,10 +51,3 @@ int main(){
     insertProcQ(ready_q, proc);
     scheduler();
 }
-    proc->p_s = p1state;
-    proc->p_time = 0;
-    proc->p_supportStruct = NULL;
-    
-    insertProcQ(ready_q, proc);
-    scheduler();
-}
