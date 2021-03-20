@@ -16,8 +16,6 @@ int main(){
     initPcbs();  //inizializza la pcb_free
     initASL();   //inizializza la ASL list
 
-    passupvector_t *pu_vec = (passupvector_t*) PASSUPVECTOR;
-
     /*init variabili globali*/
     p_count = 0;
     sb_count = 0;
@@ -32,7 +30,7 @@ int main(){
     /*Load dell'Interval Timer*/
     LDIT(100000);
 
-
+    /*Inizializzazione processo*/
     pcb_PTR proc = allocPcb();  //mette un processo nella Ready Queue
     p_count++;  //incrementa il process count
 
