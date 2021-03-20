@@ -36,7 +36,7 @@ int main(){
     state_t p1state;
     STST(&p1state);
 
-    p1state.status = p1state.status | IOINTERRUPTS | TIMERINTERRUPT; //abilita interrupt e interval timer
+    p1state.status = p1state.status | IEPBITON | CAUSEINTMASK | TEBITON; //abilita interrupt e interval timer
     RAMTOP(p1state.reg_sp);
     p1state.pc_epc = (memaddr)test;
     p1state.reg_t9 = (memaddr)test; 
