@@ -36,7 +36,6 @@ int main(){
 
     state_t p1state;
     STST(&p1state);
-
     p1state.status = p1state.status | IEPBITON | CAUSEINTMASK | TEBITON; //abilita interrupt e interval timer
     RAMTOP(p1state.reg_sp);
     p1state.pc_epc = (memaddr)test;
@@ -46,6 +45,6 @@ int main(){
     proc->p_time = 0;
     proc->p_supportStruct = NULL;
     
-    insertProcQ(ready_q, proc);
+    insertProcQ(&ready_q, proc);
     scheduler();
 }

@@ -3,5 +3,6 @@
 #include "pcb.h"
 #include "asl.h"
 #include "main.h"
+#include "../testers/p2test.c"
 
 void scheduler();
