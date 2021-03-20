@@ -1,4 +1,5 @@
 #include "main.h"
+#include "scheduler.h"
 #include "../testers/p2test.c"
 
 int main(){
@@ -34,5 +35,5 @@ int main(){
     proc->p_supportStruct = NULL;
     
     insertProcQ(ready_q, proc);
-    //chiamata allo scheduler
+    scheduler();
 }

@@ -1,8 +1,4 @@
-#include "pandos_const.h"
-#include "pandos_types.h"
-#include "pcb.h"
-#include "asl.h"
-#include "main.h"
+#include "scheduler.h"
 
 void scheduler(){
     curr_proc = removeProcQ(ready_q);
