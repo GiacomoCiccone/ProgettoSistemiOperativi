@@ -4,7 +4,7 @@
 void exceptionHandler(){
     state_t* iep_s;
     iep_s = (state_t*)BIOSDATAPAGE;
-    int exc_code = iep_s->cause & 0x3C;
+    int exc_code = (iep_s->cause & 0x3C) >> 2;
 
     switch(exc_code){ // ... da controllare, non so se funziona
     case 0: //interrupt
