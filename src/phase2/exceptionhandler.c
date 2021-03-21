@@ -5,7 +5,6 @@
 #include "syscall.h"
 #include "../testers/p2test.c"
 
-
 void exceptionHandler(){
     state_t* iep_s;
     iep_s = (state_t*)BIOSDATAPAGE;    //preleviamo l'exception state
@@ -19,7 +18,7 @@ void exceptionHandler(){
     case 4 ... 7: case 9 ... 12: //program traps
         break;
     case 8: //syscall
-        if ((iep_s->status & 0x8) == 0)    //dovrebbe controllare se e' in kernel mode non sono sicuro
+        if ((iep_s->status & KUPBITON) == ALLOFF)    //dovrebbe controllare se e' in kernel mode non sono sicuro
         {
             terminateProcess();    //se in user mode va terminato
         }
@@ -43,10 +42,10 @@ void syscallHandler(unsigned int sys, state_t* iep_s)
         terminateProcess();
         break;
     case PASSERN:
-        /* code */
+        passeren(iep_s);
         break;
     case VERHOGEN:
-        /* code */
+        verhogen(iep_s);
         break;
     case WAITIO:
         /* code */
