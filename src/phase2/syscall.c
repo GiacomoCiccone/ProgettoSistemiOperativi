@@ -3,12 +3,14 @@
 #include "main.h"
 #include "../testers/p2test.c"
 
+
 int createProcess(state_t *statep, support_t *supportp)
 {
     pcb_PTR new_p = allocPcb();
     if (new_p == NULL)
     {
-        return -1;  //non e' stato possibile allocare il processo
+        statep->gpr[1] = NOPROC;  //non e' stato possibile allocare il processo
+        LDST(statep);   //ricarichiamo la CPU
     }
     else
     {
@@ -18,7 +20,8 @@ int createProcess(state_t *statep, support_t *supportp)
         curr_proc++;    //incrementiamo i processi ready
         insertChild(curr_proc, new_p);    //inseriamo come figlio di curr
         new_p->p_time = 0;
-        return 0;
+        statep->gpr[1] = OK;
+        LDST(statep);   //ricarichiamo la CPU
     }  
 }
 
@@ -59,7 +62,7 @@ void terminateRec(pcb_PTR p)
             }
             
         }
-        (*sem)--; //incrementiamo il semaforo
+        (*sem)++; //incrementiamo il semaforo
     }
     else    //e' nella ready queue
     {

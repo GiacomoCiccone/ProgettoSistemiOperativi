@@ -1,4 +1,9 @@
 #include "exceptionhandler.h"
+#include "pandos_types.h"
+#include "pandos_const.h"
+#include "main.h"
+#include "syscall.h"
+#include "../testers/p2test.c"
 
 
 void exceptionHandler(){
@@ -14,6 +19,45 @@ void exceptionHandler(){
     case 4 ... 7: case 9 ... 12: //program traps
         break;
     case 8: //syscall
+        if ((iep_s->status & 0x8) == 0)    //dovrebbe controllare se e' in kernel mode non sono sicuro
+        {
+            terminateProcess();    //se in user mode va terminato
+        }
+        else
+        {
+            syscallHandler(iep_s->gpr[3], iep_s);   //passiamo all'handler delle sys call il numero di syscall
+        }
+        break;
+    }
+}
+
+void syscallHandler(unsigned int sys, state_t* iep_s)
+{
+    iep_s->pc_epc += 4;    //incrementiamo il PC del current process
+    switch (sys)
+    {
+    case CREATETHREAD:
+        createProcess(iep_s->gpr[4], iep_s->gpr[5]);
+        break;
+    case TERMINATETHREAD:
+        terminateProcess();
+        break;
+    case PASSERN:
+        /* code */
+        break;
+    case VERHOGEN:
+        /* code */
+        break;
+    case WAITIO:
+        /* code */
+        break;
+    case GETCPUTIME:
+        /* code */
+        break;
+    case WAITCLOCK:
+        /* code */
+        break;
+    default:
         break;
     }
 }

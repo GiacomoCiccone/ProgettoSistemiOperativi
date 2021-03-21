@@ -47,3 +47,4 @@ void setPLT(unsigned int us)
     int timescale = *((memaddr*)TIMESCALEADDR);
     setTIMER(us * timescale);
 }
+
