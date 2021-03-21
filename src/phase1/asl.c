@@ -1,5 +1,16 @@
 #include "asl.h"
 
+/*array di SEMD con dimensione massima di
+MAX_PROC. */
+HIDDEN semd_t semd_table[MAXPROC];
+
+/*Lista dei SEMD liberi o
+inutilizzati.*/
+HIDDEN semd_PTR semdFree_h;
+
+/*Lista dei semafori attivi*/
+HIDDEN semd_PTR semd_h;
+
 int insertBlocked(int *semAdd,pcb_t *p)
 {
     if (semd_h == NULL)  //ASL VUOTA

@@ -4,7 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/local/include/umps3"
+                "/usr/local/include/umps3",
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/src/phase1"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

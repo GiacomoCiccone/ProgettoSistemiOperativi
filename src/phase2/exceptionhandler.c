@@ -3,8 +3,8 @@
 
 void exceptionHandler(){
     state_t* iep_s;
-    iep_s = (state_t*)BIOSDATAPAGE;
-    int exc_code = (iep_s->cause & 0x3C) >> 2;
+    iep_s = (state_t*)BIOSDATAPAGE;    //preleviamo l'exception state
+    int exc_code = (iep_s->cause & 0x3C) >> 2;    //preleviamo il campo .ExcCode
 
     switch(exc_code){ // ... da controllare, non so se funziona
     case 0: //interrupt

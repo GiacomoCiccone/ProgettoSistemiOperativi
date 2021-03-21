@@ -38,7 +38,7 @@ all : kernel.core.umps
 kernel.core.umps : kernel
 	umps3-elf2umps -k out/$<
 
-kernel : asl.o p1test.o pcb.o  crtso.o libumps.o
+kernel : asl.o p1test.o pcb.o crtso.o libumps.o
 	$(LD) -o $(addprefix $(OUTPUT_DIR)/, $@) $(addprefix $(OUTPUT_DIR)/obj/, $^) $(LDFLAGS)
 
 clean :

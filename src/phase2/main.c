@@ -1,6 +1,12 @@
 #include "main.h"
 #include "scheduler.h"
+#include "exceptionhandler.h"
+#include "pandos_const.h"
+#include "pandos_types.h"
+#include "pcb.h"
+#include "asl.h"
 #include "../testers/p2test.c"
+
 
 int main(){
 
@@ -8,8 +14,7 @@ int main(){
     passupvector_t *pu_vec = (passupvector_t*) PASSUPVECTOR;
     pu_vec->tlb_refill_handler = (memaddr) uTLB_RefillHandler;
     pu_vec->tlb_refill_stackPtr = (memaddr) KERNELSTACK;
-    /* Set the Nucleus exception handler
-    pu_vec->exception handler = (memaddr) fooBar;*/
+    pu_vec->exception_handler = (memaddr) exceptionHandler;
     pu_vec->exception_stackPtr = (memaddr) KERNELSTACK;
 
     /*inizializzazione strutture dati fase 1*/
@@ -21,7 +26,6 @@ int main(){
     sb_count = 0;
     ready_q = mkEmptyProcQ();
     curr_proc = NULL;
-
     for(unsigned int i = 0; i < SEM_NUM; i++)
     {
         dev_sem[i] = 0;
@@ -36,7 +40,7 @@ int main(){
 
     state_t p1state;
     STST(&p1state);
-    p1state.status = p1state.status | IEPBITON | CAUSEINTMASK | TEBITON; //abilita interrupt e interval timer
+    p1state.status = p1state.status | IEPBITON | KUPBITON | TEBITON; //abilita interrupt e interval timer
     RAMTOP(p1state.reg_sp);
     p1state.pc_epc = (memaddr)test;
     p1state.reg_t9 = (memaddr)test; 

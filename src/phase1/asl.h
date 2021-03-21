@@ -17,20 +17,6 @@ pcb_PTR s_procQ;
 } semd_t, *semd_PTR;
 
 
-
-/*array di SEMD con dimensione massima di
-MAX_PROC. */
-HIDDEN semd_t semd_table[MAXPROC];
-
-/*Lista dei SEMD liberi o
-inutilizzati.*/
-HIDDEN semd_PTR semdFree_h;
-
-/*Lista dei semafori attivi*/
-HIDDEN semd_PTR semd_h;
-
-
-
 /*
 *Viene inserito il PCB puntato da p nella coda dei
 *processi bloccati associata al SEMD con chiave
