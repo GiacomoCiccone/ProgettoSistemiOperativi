@@ -2,7 +2,7 @@
 void copyState(state_t *source, state_t *dest);
 
 //calcola l'indice del semaforo di device
-int getDeviceIndex(int line, int device, int read);
+int getDeviceSemaphoreIndex(int line, int device, int read);
 
 /*Questa system call crea un nuovo processo come
 figlio del chiamante.*/

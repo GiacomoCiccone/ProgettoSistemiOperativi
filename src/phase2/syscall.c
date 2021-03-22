@@ -102,7 +102,7 @@ void waitForIO(state_t *statep)
     int line = statep->gpr[4];  //preleviamo la line dal registro a1
     int device = statep->gpr[5]; //preleviamo il device dal registro a2
     int read = statep->gpr[6];  //preleviamo se e' read da terminale da a3
-    int index = getDeviceIndex(line, device, read);  //calcolo indice semaforo
+    int index = getDeviceSemaphoreIndex(line, device, read);  //calcolo indice semaforo
     int *sem = &(dev_sem[index]);   //prendiamo l'indirizzo di tale semaforo
     (*sem)--;   //decrementiamo il semaforo
     insertBlocked(sem, curr_proc);  //blocchiamo il processo
@@ -132,7 +132,7 @@ void copyState(state_t *source, state_t *dest)
     }
 }
 
-int getDeviceIndex(int line, int device, int read)
+int getDeviceSemaphoreIndex(int line, int device, int read)
 {
     return ((line - 3) * 8) + (line == 7 ? (read * 8) + device : device);
 }
