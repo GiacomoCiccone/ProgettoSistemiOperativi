@@ -119,7 +119,7 @@ void waitForIO(state_t *statep)
     }
 }
 
-void getCpuTime(state_t *statep)
+void getCpuTime(state_t *statep) //TODO da controllare se è necessario aggiornare qui p_time
 {
     cpu_t currTime;
     STCK(currTime); //tempo attuale
