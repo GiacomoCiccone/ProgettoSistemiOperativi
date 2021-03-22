@@ -1,5 +1,5 @@
 #include "syscall.h"
-#include "scheduler.c"
+#include "scheduler.h"
 #include "main.h"
 #include "../testers/p2test.c"
 
@@ -102,20 +102,50 @@ void waitForIO(state_t *statep)
     int line = statep->gpr[4];  //preleviamo la line dal registro a1
     int device = statep->gpr[5]; //preleviamo il device dal registro a2
     int read = statep->gpr[6];  //preleviamo se e' read da terminale da a3
-    int index = getDeviceSemaphoreIndex(line, device, read);  //calcolo indice semaforo
-    int *sem = &(dev_sem[index]);   //prendiamo l'indirizzo di tale semaforo
-    (*sem)--;   //decrementiamo il semaforo
-    insertBlocked(sem, curr_proc);  //blocchiamo il processo
-    sb_count++; //aumentiamo i soft blocked
-    statep->gpr[1] = OK;    //valore di ritorno in v0 
-    copyState(&(curr_proc->p_s), statep);   //copiamo lo stato
-    scheduler();    //scheduler
+    if (line < DISKINT || line > TERMINT)   //fuori dal range delle linee
+    {
+        terminateProcess(); //terminiamo il processo
+    }
+    else
+    {
+        int index = getDeviceSemaphoreIndex(line, device, read);  //calcolo indice semaforo
+        int *sem = &(dev_sem[index]);   //prendiamo l'indirizzo di tale semaforo
+        (*sem)--;   //decrementiamo il semaforo
+        insertBlocked(sem, curr_proc);  //blocchiamo il processo
+        sb_count++; //aumentiamo i soft blocked
+        statep->gpr[1] = OK;    //valore di ritorno in v0 
+        copyState(&(curr_proc->p_s), statep);   //copiamo lo stato
+        scheduler();    //scheduler
+    }
 }
 
 void getCpuTime(state_t *statep)
 {
+    cpu_t currTime;
+    STCK(currTime); //tempo attuale
+    curr_proc->p_time += (currTime - startTod); //aggiorno il tempo
+    statep->gpr[1] = curr_proc->p_time; //preparo il regitro di ritorno
+    STCK(startTod); //faccio ripartire il "cronometro"
+    LDST(statep);
+}
 
-    
+void waitForClock(state_t *statep)
+{
+    int *sem = &dev_sem[SEM_NUM - 1];   //l'ultimo semaforo e' dell'interval timer
+    (*sem)--;
+    sb_count++;
+    insertBlocked(sem, curr_proc);
+    copyState(&(curr_proc), statep);
+    scheduler();
+
+}
+
+void getSupportData(state_t *statep)
+{
+    support_t *sus;
+    sus = curr_proc->p_supportStruct;
+    statep->gpr[1] = sus;
+    LDST(statep);
 }
 
 void copyState(state_t *source, state_t *dest)

@@ -12,15 +12,19 @@ void scheduler()
     if (curr_proc != NULL)  //inseriamo in coda il processo corrente
     {
         insertProcQ(&ready_q, curr_proc);
+        STCK(finTod);   //"ferma" il "cronometro"
+        curr_proc->p_time += (finTod - startTod);   //aggiorna il time del processo
     }
     curr_proc = removeProcQ(&ready_q);   //prendiamo il nuovo processo
     if(curr_proc != NULL)   //se la ready queue non e' vuota
     {
+        STCK(startTod); //rinizia a "cronometrare"
         setPLT(TIMESLICE);  //impostiamo il PLT a 5ms
         LDST(&(curr_proc->p_s));
     }
     else    //se la ready queue e' vuota
     {
+        curr_proc = NULL;
         if (p_count == 0)   //se process count e' zero invocare HALT
         {
             HALT();

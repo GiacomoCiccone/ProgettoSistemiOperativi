@@ -51,12 +51,13 @@ void syscallHandler(unsigned int sys, state_t* iep_s)
         waitForIO(iep_s);
         break;
     case GETCPUTIME:
-        /* code */
+        getCpuTime(iep_s);
         break;
     case WAITCLOCK:
-        /* code */
+        waitForClock(iep_s);
         break;
     default:
+        getSupportData(iep_s);
         break;
     }
 }

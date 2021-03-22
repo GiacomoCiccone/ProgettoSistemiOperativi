@@ -21,3 +21,15 @@ void verhogen(state_t *statep);
 /*Mette in pausa il processo chiamante fino al termine di
 un I/O sul dispositivo identificato da a1 e a2.*/
 void waitForIO(state_t *statep);
+
+/*restituisce il tempo di esecuzione (in microsecondi)
+del processo che l’ha chiamata fino a quel momento*/
+void getCpuTime(state_t *statep);
+
+/*Blocca il processo invocante fino al prossimo tick del
+dispositivo*/
+void waitForClock(state_t *statep);
+
+/*Restituisce un puntatore alla struttura di supporto del
+processo corrente*/
+void getSupportData(state_t *statep);
