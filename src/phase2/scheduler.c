@@ -11,7 +11,7 @@ void scheduler()
 {
     if (curr_proc != NULL)  //inseriamo in coda il processo corrente
     {
-        insertProcQ(&ready_q, curr_proc);
+        insertProcQ(&ready_q, curr_proc); //ATTENZIONE assicurarsi che curr_proc sia aggiornato allo stato corrente dall'interrupt
         STCK(finTod);   //"ferma" il "cronometro"
         curr_proc->p_time += (finTod - startTod);   //aggiorna il time del processo
     }
