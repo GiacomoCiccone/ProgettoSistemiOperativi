@@ -6,6 +6,7 @@
 #include "pcb.h"
 #include "asl.h"
 #include "../testers/p2test.c"
+#include "syscall.h"
 
 
 int main(){
@@ -45,7 +46,7 @@ int main(){
     p1state.pc_epc = (memaddr)test;
     p1state.reg_t9 = (memaddr)test; 
 
-    //proc->p_s = p1state;
+    copyState((&proc->p_s), &p1state);
     proc->p_time = 0;
     proc->p_supportStruct = NULL;
     

@@ -4,7 +4,7 @@
 #include "../testers/p2test.c"
 
 
-int createProcess(state_t *statep, support_t *supportp)
+void createProcess(state_t *statep)
 {
     pcb_PTR new_p = allocPcb();
     if (new_p == NULL)
@@ -14,13 +14,13 @@ int createProcess(state_t *statep, support_t *supportp)
     }
     else
     {
-        //new_p->p_s = *(statep);
-        //new_p->p_supportStruct = supportp;
+        new_p->p_supportStruct = statep->gpr[5];
         insertProcQ(&ready_q, new_p);   //inseriamo nella ready queue
         curr_proc++;    //incrementiamo i processi ready
         insertChild(curr_proc, new_p);    //inseriamo come figlio di curr
         new_p->p_time = 0;
         statep->gpr[1] = OK;
+        copyState((&new_p->p_s), &(statep->gpr[4]));
         LDST(statep);   //ricarichiamo la CPU
     }  
 }
@@ -78,8 +78,8 @@ void passeren(state_t *statep)
     (*semadd)--;    //decrementiamo
     if ((*semadd) < 0)    //bisogna bloccarlo sul semaforo
     {
-        //curr_proc->p_s = *(statep); bisogna farlo a mano
         insertBlocked(semadd, curr_proc);   //blocchiamo il processo
+        copyState((&curr_proc->p_s), statep);
         scheduler();    //chiamiamo lo scheduler
     }
     LDST(statep);   //curr proc non e' stato bloccato
@@ -97,15 +97,42 @@ void verhogen(state_t *statep)
     LDST(statep);
 }
 
-int waitForIO(state_t *statep)
+void waitForIO(state_t *statep)
 {
-    int line = statep->gpr[4];
-    int device = statep->gpr[5];
-    int read = statep->gpr[6];
-    if (line < 3 || line > 7)
-    {
-        terminateProcess();
-    }
+    int line = statep->gpr[4];  //preleviamo la line dal registro a1
+    int device = statep->gpr[5]; //preleviamo il device dal registro a2
+    int read = statep->gpr[6];  //preleviamo se e' read da terminale da a3
+    int index = getDeviceIndex(line, device, read);  //calcolo indice semaforo
+    int *sem = &(dev_sem[index]);   //prendiamo l'indirizzo di tale semaforo
+    (*sem)--;   //decrementiamo il semaforo
+    insertBlocked(sem, curr_proc);  //blocchiamo il processo
+    sb_count++; //aumentiamo i soft blocked
+    statep->gpr[1] = OK;    //valore di ritorno in v0 
+    copyState(&(curr_proc->p_s), statep);   //copiamo lo stato
+    scheduler();    //scheduler
+}
+
+void getCpuTime(state_t *statep)
+{
 
     
+}
+
+void copyState(state_t *source, state_t *dest)
+{
+    dest->cause = source->cause;
+    dest->entry_hi = source->entry_hi;
+    dest->hi = source->hi;
+    dest->lo = source->lo;
+    dest->pc_epc = source->pc_epc;
+    dest->status = source->status;
+    for (unsigned int i = 0; i < STATE_GPR_LEN; i++)
+    {
+        dest->gpr[i] = source->gpr[i];
+    }
+}
+
+int getDeviceIndex(int line, int device, int read)
+{
+    return ((line - 3) * 8) + (line == 7 ? (read * 8) + device : device);
 }

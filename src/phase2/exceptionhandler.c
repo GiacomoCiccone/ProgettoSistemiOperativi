@@ -36,7 +36,7 @@ void syscallHandler(unsigned int sys, state_t* iep_s)
     switch (sys)
     {
     case CREATETHREAD:
-        createProcess(iep_s->gpr[4], iep_s->gpr[5]);
+        createProcess(iep_s);
         break;
     case TERMINATETHREAD:
         terminateProcess();
@@ -48,7 +48,7 @@ void syscallHandler(unsigned int sys, state_t* iep_s)
         verhogen(iep_s);
         break;
     case WAITIO:
-        /* code */
+        waitForIO(iep_s);
         break;
     case GETCPUTIME:
         /* code */
