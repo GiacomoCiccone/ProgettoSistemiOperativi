@@ -52,8 +52,10 @@ void syscallHandler(unsigned int sys, state_t* iep_s)
     case WAITCLOCK:
         waitForClock(iep_s);
         break;
-    default:
+    case GETSUPPORTPTR:
         getSupportData(iep_s);
+        break;
+    default:
         break;
     }
 }
