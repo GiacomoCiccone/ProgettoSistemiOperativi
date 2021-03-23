@@ -11,10 +11,10 @@ void exceptionHandler(){
         interruptHandler();
         break;
     case 1 ... 3: //TLB Exception
-        passUpOrDie(1);
+        passUpOrDie(PGFAULTEXCEPT);
         break;
     case 4 ... 7: case 9 ... 12: //program traps
-        passUpOrDie(0);
+        passUpOrDie(GENERALEXCEPT);
         break;
     case 8: //syscall
         if ((iep_s->status & KUPBITON) == ALLOFF)    //dovrebbe controllare se e' in kernel mode non sono sicuro
@@ -59,18 +59,18 @@ void syscallHandler(unsigned int sys, state_t* iep_s)
         getSupportData(iep_s);
         break;
     default:
-        passUpOrDie(0);
+        passUpOrDie(GENERALEXCEPT);
         break;
     }
 }
 
-void passUpOrDie(unsigned int isTLB){
+void passUpOrDie(unsigned int cause){
     if(curr_proc->p_supportStruct == NULL){
         terminateProcess();
         return;
     }
 
-    int context_i = !isTLB;
+    int context_i = cause;
 
     curr_proc->p_supportStruct->sup_exceptState[context_i] = *((state_t*)BIOSDATAPAGE);
     unsigned int stackPtr = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_stackPtr;

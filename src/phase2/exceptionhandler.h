@@ -12,4 +12,4 @@
 
 void exceptionHandler();
 void syscallHandler();
-void passUpOrDie(unsigned int isTLB);
+void passUpOrDie(unsigned int cause);
