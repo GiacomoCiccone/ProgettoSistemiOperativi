@@ -1,13 +1,5 @@
 #include "main.h"
-#include "scheduler.h"
-#include "exceptionhandler.h"
-#include "../pandos_const.h"
-#include "../pandos_types.h"
-#include "pcb.h"
-#include "asl.h"
 #include "../testers/p2test.c"
-#include "syscall.h"
-
 
 int main(){
 

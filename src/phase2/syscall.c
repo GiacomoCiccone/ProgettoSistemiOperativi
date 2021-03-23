@@ -1,8 +1,4 @@
 #include "syscall.h"
-#include "scheduler.h"
-#include "main.h"
-#include "../testers/p2test.c"
-
 
 void createProcess(state_t *statep)
 {

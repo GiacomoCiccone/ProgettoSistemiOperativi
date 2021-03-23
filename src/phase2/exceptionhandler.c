@@ -1,8 +1,4 @@
 #include "exceptionhandler.h"
-#include "pandos_types.h"
-#include "pandos_const.h"
-#include "main.h"
-#include "syscall.h"
 #include "../testers/p2test.c"
 
 void exceptionHandler(){

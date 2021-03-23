@@ -1,3 +1,12 @@
+#include "helper.h"
+#include "pandos_const.h"
+#include "pandos_types.h"
+#include "pcb.h"
+#include "asl.h"
+#include "exceptionhandler.h"
+#include "scheduler.h"
+
+
 #define SEM_NUM 49  //numero di semafori da mantenere
 
 int p_count;          //process count

@@ -1,3 +1,11 @@
+#include "helper.h"
+#include "scheduler.h"
+
+#ifndef MAIN_H_
+#define MAIN_H_
+#include "main.h"
+#endif
+
 //copia lo stato di source in dest
 void copyState(state_t *source, state_t *dest);
 
