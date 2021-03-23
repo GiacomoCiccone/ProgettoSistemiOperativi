@@ -16,9 +16,12 @@ void interruptHandler(){
         Scheduler();               //chiamo lo scheduler
         break;
     case 2: //System wide interval timer
+        LDIT(100000);
+        while(removeBlocked(dev_sem[SEM_NUM-1] != NULL));
+        dev_sem[SEM_NUM-1] = 0;
+        returnToProcess();
         break;
     case 3 ... 7: //interrupt lines
-
         memaddr* interrupting_line_addr = getInterruptLineAddr(int_line); //calcola l'indirizzo dell'interrupt line
         int dev_n = getHighestPriorityIntDevice(interrupting_line_addr);  //controlla il device con priorità maggiore che ha causato l'interrupt
         devreg_t* d_r = (devreg_t*) getDevRegAddr(int_line, dev_n);       //calcola il device register
