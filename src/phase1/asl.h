@@ -2,21 +2,6 @@
 #include "pandos_types.h"
 #include "pcb.h"
 
-typedef struct semd_t {
-
-/* ptr to next element on queue */
- struct semd_t *s_next;
-
-/* ptr to the semaphore */
- int *s_semAdd;
-
-/* ptr to tail of the queue of procs.
-blocked on this sem. */
-pcb_PTR s_procQ;
-
-} semd_t, *semd_PTR;
-
-
 /*
 *Viene inserito il PCB puntato da p nella coda dei
 *processi bloccati associata al SEMD con chiave

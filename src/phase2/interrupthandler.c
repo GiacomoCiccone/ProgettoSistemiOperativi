@@ -2,6 +2,45 @@
 
 state_t* iep_s;
 
+void returnToProcess()
+{
+    LDST(&iep_s);
+}
+
+inline memaddr* getDevRegAddr(int int_line, int dev_n)
+{
+    return 0x10000054 + ((int_line - 3) * 0x80) + (dev_n * 0x10);
+}
+
+inline memaddr* getInterruptLineAddr(int n)
+{
+    return INTERRUPTLINEBASEADDR + (0x04 * (n-3));
+}
+
+inline memaddr* getInterruptingLineAddr(int n)
+{
+    return INTERRUPTINGLINEBASEADDR + (0x04 * n);
+}
+
+int getHighestPriorityIntLine(int intmap)
+{
+    for(int i=0; i<8; i++){
+        if(intmap & i*2)
+            return i;
+    }
+}
+
+int getHighestPriorityIntDevice(memaddr* int_line_addr)
+{
+    unsigned int bitmap = *(int_line_addr);
+
+    for(int i=0; i<8; i++)
+    {
+        if(bitmap & i*2)
+            return i;
+    }
+}
+
 void interruptHandler(){
     iep_s = (state_t*)BIOSDATAPAGE;    //preleviamo l'exception state
     int int_map = (iep_s->cause & 0xFF00) >> 8;
@@ -21,7 +60,7 @@ void interruptHandler(){
         dev_sem[SEM_NUM-1] = 0;
         returnToProcess();
         break;
-    case 3 ... 7: //interrupt lines
+    case 3 ... 7: ;//interrupt lines
         memaddr* interrupting_line_addr = getInterruptLineAddr(int_line); //calcola l'indirizzo dell'interrupt line
         int dev_n = getHighestPriorityIntDevice(interrupting_line_addr);  //controlla il device con priorità maggiore che ha causato l'interrupt
         devreg_t* d_r = (devreg_t*) getDevRegAddr(int_line, dev_n);       //calcola il device register
@@ -42,37 +81,5 @@ void interruptHandler(){
         insertProcQ(ready_q, blocked_proc);     //processo passa da blocked a ready
         returnToProcess();                      //torno al processo che era in esecuzione
         break;
-    }
-}
-
-void returnToProcess(){
-    LDST(&iep_s);
-}
-
-inline memaddr* getDevRegAddr(int int_line, int dev_n){
-    return 0x10000054 + ((int_line - 3) * 0x80) + (dev_n * 0x10);
-}
-
-inline memaddr* getInterruptLineAddr(int n){
-    return INTERRUPTLINEBASEADDR + (0x04 * (n-3));
-}
-
-inline memaddr* getInterruptingLineAddr(int n){
-    return INTERRUPTINGLINEBASEADDR + (0x04 * n);
-}
-
-int getHighestPriorityIntLine(int intmap){
-    for(int i=0; i<8; i++){
-        if(intmap & i*2)
-            return i;
-    }
-}
-
-int getHighestPriorityIntDevice(memaddr* int_line_addr){
-    unsigned int bitmap = *(int_line_addr);
-
-    for(int i=0; i<8; i++){
-        if(bitmap & i*2)
-            return i;
     }
 }
