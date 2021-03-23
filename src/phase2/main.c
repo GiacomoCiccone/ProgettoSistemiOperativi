@@ -1,5 +1,9 @@
 #include "main.h"
+#ifndef P2TEST_C_
+#define P2TEST_C_
 #include "../testers/p2test.c"
+#endif
+
 
 int main(){
 
