@@ -10,6 +10,9 @@ void interruptHandler(){
     case 0: //interprocessor interrupt, disabilitato su nostra macchina
         return;
     case 1: //PLT Interrupt
+        setPLT(1000000000);        //ack interrupt
+        curr_proc->p_s = *(iep_s); //copio stato processore in p_s
+        Scheduler();               //chiamo lo scheduler
         break;
     case 2: //System wide interval timer
         break;
@@ -21,7 +24,7 @@ void interruptHandler(){
         int status_code = d_r->dtp.status;  //salva lo status code
         d_r->dtp.command = ACK;             //invio comando ack per riconoscere l'interrupt
         
-        int sem_i = getDeviceSemaphoreIndex(int_line, dev_n, read);//V operation su semaforo associato a device
+        int sem_i = getDeviceSemaphoreIndex(int_line, dev_n, read); //V operation su semaforo associato a device
         pcb_PTR blocked_proc = removeBlocked(&dev_sem[sem_i]);
         dev_sem[sem_i]--;
 
