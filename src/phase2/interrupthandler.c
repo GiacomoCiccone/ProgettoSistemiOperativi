@@ -4,8 +4,9 @@ state_t* iep_s;
 
 void interruptHandler(){
     iep_s = (state_t*)BIOSDATAPAGE;    //preleviamo l'exception state
-    int int_line = (iep_s->cause & 0xFF00) >> 8;
-    int read; //TODO da calcolare (HOW)
+    int int_map = (iep_s->cause & 0xFF00) >> 8;
+    int int_line = getHighestPriorityIntLine(int_map);
+    int read = 0; //TODO da calcolare (HOW)
     switch(int_line){
     case 0: //interprocessor interrupt, disabilitato su nostra macchina
         return;
@@ -17,10 +18,16 @@ void interruptHandler(){
     case 2: //System wide interval timer
         break;
     case 3 ... 7: //interrupt lines
+
         memaddr* interrupting_line_addr = getInterruptLineAddr(int_line); //calcola l'indirizzo dell'interrupt line
         int dev_n = getHighestPriorityIntDevice(interrupting_line_addr);  //controlla il device con priorità maggiore che ha causato l'interrupt
         devreg_t* d_r = (devreg_t*) getDevRegAddr(int_line, dev_n);       //calcola il device register
         
+        if(int_line == 7){
+            termreg_t* t_r = (termreg_t*) d_r;
+            read = t_r->recv_status == READY;
+        }
+
         int status_code = d_r->dtp.status;  //salva lo status code
         d_r->dtp.command = ACK;             //invio comando ack per riconoscere l'interrupt
         
@@ -49,6 +56,13 @@ inline memaddr* getInterruptLineAddr(int n){
 
 inline memaddr* getInterruptingLineAddr(int n){
     return INTERRUPTINGLINEBASEADDR + (0x04 * n);
+}
+
+int getHighestPriorityIntLine(int intmap){
+    for(int i=0; i<8; i++){
+        if(intmap & i*2)
+            return i;
+    }
 }
 
 int getHighestPriorityIntDevice(memaddr* int_line_addr){
