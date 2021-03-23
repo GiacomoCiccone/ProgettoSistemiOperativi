@@ -8,10 +8,13 @@ void exceptionHandler(){
 
     switch(exc_code){ // ... da controllare, non so se funziona
     case 0: //interrupt
+        interruptHandler();
         break;
     case 1 ... 3: //TLB Exception
+        passUpOrDie(1);
         break;
     case 4 ... 7: case 9 ... 12: //program traps
+        passUpOrDie(0);
         break;
     case 8: //syscall
         if ((iep_s->status & KUPBITON) == ALLOFF)    //dovrebbe controllare se e' in kernel mode non sono sicuro
@@ -56,6 +59,22 @@ void syscallHandler(unsigned int sys, state_t* iep_s)
         getSupportData(iep_s);
         break;
     default:
+        passUpOrDie(0);
         break;
     }
+}
+
+void passUpOrDie(unsigned int isTLB){
+    if(curr_proc->p_supportStruct == NULL){
+        terminateProcess();
+        return;
+    }
+
+    int context_i = !isTLB;
+
+    curr_proc->p_supportStruct->sup_exceptState[context_i] = *((state_t*)BIOSDATAPAGE);
+    unsigned int stackPtr = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_stackPtr;
+    unsigned int status = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_status;
+    unsigned int pc = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_pc;
+    LDCXT(stackPtr, status, pc);
 }
