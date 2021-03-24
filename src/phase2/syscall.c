@@ -21,24 +21,9 @@ void createProcess(state_t *statep)
         insertChild(curr_proc, new_p);    //inseriamo come figlio di curr
         new_p->p_time = 0;
         statep->gpr[1] = OK;
-        copyState((&new_p->p_s), &(statep->gpr[4]));
+        copyState((&new_p->p_s), (state_t*) &(statep->gpr[4]));
         LDST(statep);   //ricarichiamo la CPU
     }  
-}
-
-void terminateProcess()
-{
-    outChild(curr_proc);    //rimuove curr proc dalla lista dei figli del padre
-    if (emptyChild(curr_proc))  //curr proc non ha figli
-    {
-        freePcb(curr_proc);
-        p_count--;
-    }
-    else    //curr ha figli
-    {
-        terminateRec(curr_proc);
-    }
-    scheduler();
 }
 
 void terminateRec(pcb_PTR p)
@@ -71,6 +56,21 @@ void terminateRec(pcb_PTR p)
     }
     freePcb(p);    //restituiamo il processo alla freepcb
     p_count--;    //decrementiamo
+}
+
+void terminateProcess()
+{
+    outChild(curr_proc);    //rimuove curr proc dalla lista dei figli del padre
+    if (emptyChild(curr_proc))  //curr proc non ha figli
+    {
+        freePcb(curr_proc);
+        p_count--;
+    }
+    else    //curr ha figli
+    {
+        terminateRec(curr_proc);
+    }
+    scheduler();
 }
 
 void passeren(state_t *statep)

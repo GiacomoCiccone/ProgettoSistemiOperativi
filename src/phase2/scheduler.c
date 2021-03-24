@@ -6,6 +6,14 @@
 #include "asl.h"
 #include "main.h"
 
+
+/*funzione per settare il PLT*/
+void setPLT(unsigned int us)
+{
+    int timescale = *((memaddr*)TIMESCALEADDR);
+    setTIMER(us * timescale);
+}
+
 void scheduler()
 {
     if (curr_proc != NULL)  //inseriamo in coda il processo corrente
@@ -44,10 +52,4 @@ void scheduler()
     }
 }
 
-/*funzione per settare il PLT*/
-void setPLT(unsigned int us)
-{
-    int timescale = *((memaddr*)TIMESCALEADDR);
-    setTIMER(us * timescale);
-}
 

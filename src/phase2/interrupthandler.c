@@ -63,7 +63,7 @@ void interruptHandler(){
         break;
     case 2: //System wide interval timer
         LDIT(100000);
-        while(removeBlocked(dev_sem[SEM_NUM-1] != NULL));
+        while(removeBlocked(&dev_sem[SEM_NUM-1]) != NULL);
         dev_sem[SEM_NUM-1] = 0;
         returnToProcess();
         break;
@@ -85,7 +85,7 @@ void interruptHandler(){
         dev_sem[sem_i]--;
 
         blocked_proc->p_s.reg_v0 = status_code; //inserisce status code in v0
-        insertProcQ(ready_q, blocked_proc);     //processo passa da blocked a ready
+        insertProcQ(&ready_q, blocked_proc);     //processo passa da blocked a ready
         returnToProcess();                      //torno al processo che era in esecuzione
         break;
     }
