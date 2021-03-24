@@ -51,10 +51,10 @@ int main(){
     p_count++;  //incrementa il process count
     state_t p1state;
     STST(&p1state);
-    p1state.status = ALLOFF | IEPON | USERPON | TEBITON; //abilita interrupt e interval timer
     RAMTOP(p1state.reg_sp);
     p1state.pc_epc = (memaddr) test;
     p1state.reg_t9 = (memaddr) test; 
+    p1state.status = ALLOFF | IEPON | IMON | TEBITON; //abilita interrupt e interval timer
 
     copyState(&p1state, (&proc->p_s));
     
