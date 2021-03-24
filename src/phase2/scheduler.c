@@ -6,6 +6,7 @@
 #include "asl.h"
 #include "main.h"
 
+
 extern int p_count;          //process count
 extern int sb_count;         //soft-block count
 extern pcb_PTR ready_q;      //ready queue

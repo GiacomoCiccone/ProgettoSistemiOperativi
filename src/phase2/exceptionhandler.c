@@ -12,7 +12,12 @@ extern pcb_PTR ready_q;      //ready queue
 extern pcb_PTR curr_proc;    //current process
 extern int dev_sem[SEM_NUM]; //device semaphores
 
-void exceptionHandler(){
+void exceptionHandler()
+{
+    for (int i = 0; i < 100; i++)
+    {
+        ;
+    }
     state_t* iep_s;
     iep_s = (state_t*)BIOSDATAPAGE;    //preleviamo l'exception state
     int exc_code = (iep_s->cause & 0x3C) >> 2;    //preleviamo il campo .ExcCode
@@ -28,7 +33,7 @@ void exceptionHandler(){
         passUpOrDie(GENERALEXCEPT);
         break;
     case 8: //syscall
-        if ((iep_s->status & 0x4) == 0x00000000)    //dovrebbe controllare se e' in kernel mode non sono sicuro
+        if ((iep_s->status & USERPON) == 0x00000000)    //dovrebbe controllare se e' in kernel mode non sono sicuro
         {
             terminateProcess();    //se in user mode va terminato
         }

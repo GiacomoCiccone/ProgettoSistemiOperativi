@@ -4,7 +4,6 @@
 #include "../pandos_types.h"
 #include "pcb.h"
 #include "asl.h"
-#include "exceptionhandler.h"
 #include "scheduler.h"
 
 int p_count;          //process count
@@ -16,7 +15,8 @@ int dev_sem[SEM_NUM]; //device semaphores
 extern void exceptionHandler();
 extern void test();
 extern void uTLB_RefillHandler();
-
+extern void exceptionHandler();
+extern void copyState();
 
 int main(){
 
@@ -49,15 +49,14 @@ int main(){
     /*Inizializzazione processo*/
     pcb_PTR proc = allocPcb();  //mette un processo nella Ready Queue
     p_count++;  //incrementa il process count
-
     state_t p1state;
     STST(&p1state);
-    p1state.status = p1state.status | 0x4 | 0x8 | 0x08000000; //abilita interrupt e interval timer
+    p1state.status = ALLOFF | IEPON | USERPON | TEBITON; //abilita interrupt e interval timer
     RAMTOP(p1state.reg_sp);
-    p1state.pc_epc = (memaddr)test;
-    p1state.reg_t9 = (memaddr)test; 
+    p1state.pc_epc = (memaddr) test;
+    p1state.reg_t9 = (memaddr) test; 
 
-    copyState((&proc->p_s), &p1state);
+    copyState(&p1state, (&proc->p_s));
     proc->p_time = 0;
     proc->p_supportStruct = NULL;
     

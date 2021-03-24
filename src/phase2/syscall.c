@@ -13,6 +13,25 @@ extern int dev_sem[SEM_NUM]; //device semaphores
 extern cpu_t startTod;  //servono per misurare l'intervallo di tempo
 extern cpu_t finTod;
 
+void copyState(state_t *source, state_t *dest)
+{   
+    dest->cause = source->cause;
+    dest->entry_hi = source->entry_hi;
+    dest->hi = source->hi;
+    dest->lo = source->lo;
+    dest->pc_epc = source->pc_epc;
+    dest->status = source->status;
+    for (unsigned int i = 0; i < STATE_GPR_LEN; i++)
+    {
+        dest->gpr[i] = source->gpr[i];
+    }
+}
+
+int getDeviceSemaphoreIndex(int line, int device, int read)
+{
+    return ((line - 3) * 8) + (line == 7 ? (read * 8) + device : device);
+}
+
 void createProcess(state_t *statep)
 {
     pcb_PTR new_p = allocPcb();
@@ -155,23 +174,4 @@ void getSupportData(state_t *statep)
     sus = curr_proc->p_supportStruct;
     statep->gpr[1] = sus;
     LDST(statep);
-}
-
-void copyState(state_t *source, state_t *dest)
-{
-    dest->cause = source->cause;
-    dest->entry_hi = source->entry_hi;
-    dest->hi = source->hi;
-    dest->lo = source->lo;
-    dest->pc_epc = source->pc_epc;
-    dest->status = source->status;
-    for (unsigned int i = 0; i < STATE_GPR_LEN; i++)
-    {
-        dest->gpr[i] = source->gpr[i];
-    }
-}
-
-int getDeviceSemaphoreIndex(int line, int device, int read)
-{
-    return ((line - 3) * 8) + (line == 7 ? (read * 8) + device : device);
 }
