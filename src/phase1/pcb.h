@@ -1,6 +1,8 @@
+#ifndef PCB_H
+#define PCB_H
+
 #include "../pandos_const.h"
 #include "../pandos_types.h"
-
 
 /*
 *Inizializza la pcbFree in modo da
@@ -110,3 +112,5 @@ pcb_t* removeChild(pcb_t *p);
 *necessariamente il primo figlio del padre).
 */
 pcb_t *outChild(pcb_t* p);
+
+#endif

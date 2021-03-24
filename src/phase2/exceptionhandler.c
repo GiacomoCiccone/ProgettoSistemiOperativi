@@ -1,8 +1,11 @@
 #include "exceptionhandler.h"
-#ifndef P2TEST_C_
-#define P2TEST_C_
-#include "../testers/p2test.c"
-#endif
+#include "helper.h"
+#include "../pandos_const.h"
+#include "../pandos_types.h"
+#include "syscall.h"
+#include "interrupthandler.h"
+#include "main.h"
+
 
 
 void exceptionHandler(){
@@ -21,7 +24,7 @@ void exceptionHandler(){
         passUpOrDie(GENERALEXCEPT);
         break;
     case 8: //syscall
-        if ((iep_s->status & KUPBITON) == ALLOFF)    //dovrebbe controllare se e' in kernel mode non sono sicuro
+        if ((iep_s->status & 0x4) == 0x00000000)    //dovrebbe controllare se e' in kernel mode non sono sicuro
         {
             terminateProcess();    //se in user mode va terminato
         }
@@ -38,28 +41,28 @@ void syscallHandler(unsigned int sys, state_t* iep_s)
     iep_s->pc_epc += 4;    //incrementiamo il PC del current process
     switch (sys)
     {
-    case CREATETHREAD:
+    case 1:
         createProcess(iep_s);
         break;
-    case TERMINATETHREAD:
+    case 2:
         terminateProcess();
         break;
-    case PASSERN:
+    case 3:
         passeren(iep_s);
         break;
-    case VERHOGEN:
+    case 4:
         verhogen(iep_s);
         break;
-    case WAITIO:
+    case 5:
         waitForIO(iep_s);
         break;
-    case GETCPUTIME:
+    case 6:
         getCpuTime(iep_s);
         break;
-    case WAITCLOCK:
+    case 7:
         waitForClock(iep_s);
         break;
-    case GETSUPPORTPTR:
+    case 8:
         getSupportData(iep_s);
         break;
     default:

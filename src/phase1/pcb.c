@@ -1,4 +1,6 @@
 #include "pcb.h"
+#include "../pandos_const.h"
+#include "../pandos_types.h"
 
 HIDDEN pcb_t pcbFree_table[MAXPROC];
 HIDDEN pcb_PTR sentinella;

@@ -1,8 +1,10 @@
 #include "scheduler.h"
-#ifndef P2TEST_C_
-#define P2TEST_C_
-#include "../testers/p2test.c"
-#endif
+#include "helper.h"
+#include "../pandos_const.h"
+#include "../pandos_types.h"
+#include "pcb.h"
+#include "asl.h"
+#include "main.h"
 
 void scheduler()
 {
@@ -30,7 +32,7 @@ void scheduler()
         {
             state_t p_s;    //bisogna prima settare lo status register per abilitare gli interrupt
             STST(&p_s);
-            p_s.status = p_s.status | IEPBITON; //abilitiamo gli interrupt
+            p_s.status = p_s.status | 0x4; //abilitiamo gli interrupt
             setPLT(1000000000);    //carichiamo il PLT con un valore alto
             LDST(&p_s);
             WAIT();

@@ -1,4 +1,9 @@
 #include "syscall.h"
+#include "helper.h"
+#include "scheduler.h"
+#include "main.h"
+#include "../pandos_const.h"
+#include "../pandos_types.h"
 
 void createProcess(state_t *statep)
 {

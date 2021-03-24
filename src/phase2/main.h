@@ -1,11 +1,7 @@
-#include "helper.h"
-#include "pandos_const.h"
-#include "pandos_types.h"
-#include "pcb.h"
-#include "asl.h"
-#include "exceptionhandler.h"
-#include "scheduler.h"
+#ifndef MAIN_H
+#define MAIN_H
 
+#include "../pandos_types.h"
 
 #define SEM_NUM 49  //numero di semafori da mantenere
 
@@ -16,3 +12,6 @@ pcb_PTR curr_proc;    //current process
 int dev_sem[SEM_NUM]; //device semaphores
 
 extern void test();
+extern void uTLB_RefillHandler();
+
+#endif

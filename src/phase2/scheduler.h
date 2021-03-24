@@ -1,15 +1,11 @@
-#include "helper.h"
-#include "pandos_const.h"
-#include "pandos_types.h"
-#include "pcb.h"
-#include "asl.h"
+#ifndef SCHEDULER_H
+#define SCHEDULER_H
 
-#ifndef MAIN_H_
-#define MAIN_H_
-#include "main.h"
-#endif
+#include "../pandos_types.h"
 
 cpu_t startTod;  //servono per misurare l'intervallo di tempo
 cpu_t finTod;
 
 void scheduler();
+
+#endif

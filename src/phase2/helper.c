@@ -1,6 +1,6 @@
 #include "helper.h"
 
-void myMemCpy(void *dest, void *src, size_t n) 
+void memcpy(void *dest, void *src, size_t n) 
 { 
    // Typecast src and dest addresses to (char *) 
    char *csrc = (char *)src; 

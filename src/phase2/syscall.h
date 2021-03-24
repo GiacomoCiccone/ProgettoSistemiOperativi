@@ -1,10 +1,7 @@
-#include "helper.h"
-#include "scheduler.h"
+#ifndef SYSCALL_H
+#define SYSCALL_H
 
-#ifndef MAIN_H_
-#define MAIN_H_
-#include "main.h"
-#endif
+#include "../pandos_types.h"
 
 //copia lo stato di source in dest
 void copyState(state_t *source, state_t *dest);
@@ -41,3 +38,5 @@ void waitForClock(state_t *statep);
 /*Restituisce un puntatore alla struttura di supporto del
 processo corrente*/
 void getSupportData(state_t *statep);
+
+#endif

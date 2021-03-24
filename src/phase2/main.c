@@ -1,8 +1,11 @@
 #include "main.h"
-#ifndef P2TEST_C_
-#define P2TEST_C_
-#include "../testers/p2test.c"
-#endif
+#include "helper.h"
+#include "../pandos_const.h"
+#include "../pandos_types.h"
+#include "pcb.h"
+#include "asl.h"
+#include "exceptionhandler.h"
+#include "scheduler.h"
 
 
 int main(){
@@ -37,7 +40,7 @@ int main(){
 
     state_t p1state;
     STST(&p1state);
-    p1state.status = p1state.status | IEPBITON | KUPBITON | TEBITON; //abilita interrupt e interval timer
+    p1state.status = p1state.status | 0x4 | 0x8 | 0x08000000; //abilita interrupt e interval timer
     RAMTOP(p1state.reg_sp);
     p1state.pc_epc = (memaddr)test;
     p1state.reg_t9 = (memaddr)test; 

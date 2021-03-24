@@ -1,4 +1,11 @@
 #include "interrupthandler.h"
+#include "helper.h"
+#include "../pandos_const.h"
+#include "../pandos_types.h"
+#include "pcb.h"
+#include "asl.h"
+#include "syscall.h"
+#include "main.h"
 
 state_t* iep_s;
 
@@ -7,17 +14,17 @@ void returnToProcess()
     LDST(&iep_s);
 }
 
-inline memaddr* getDevRegAddr(int int_line, int dev_n)
+memaddr* getDevRegAddr(int int_line, int dev_n)
 {
     return 0x10000054 + ((int_line - 3) * 0x80) + (dev_n * 0x10);
 }
 
-inline memaddr* getInterruptLineAddr(int n)
+memaddr* getInterruptLineAddr(int n)
 {
     return INTERRUPTLINEBASEADDR + (0x04 * (n-3));
 }
 
-inline memaddr* getInterruptingLineAddr(int n)
+memaddr* getInterruptingLineAddr(int n)
 {
     return INTERRUPTINGLINEBASEADDR + (0x04 * n);
 }
@@ -52,7 +59,7 @@ void interruptHandler(){
     case 1: //PLT Interrupt
         setPLT(1000000000);        //ack interrupt
         curr_proc->p_s = *(iep_s); //copio stato processore in p_s
-        Scheduler();               //chiamo lo scheduler
+        scheduler();               //chiamo lo scheduler
         break;
     case 2: //System wide interval timer
         LDIT(100000);

@@ -1,6 +1,8 @@
-#include "pandos_const.h"
-#include "pandos_types.h"
-#include "pcb.h"
+#ifndef ASL_H
+#define ASL_H
+
+#include "../pandos_const.h"
+#include "../pandos_types.h"
 
 /*
 *Viene inserito il PCB puntato da p nella coda dei
@@ -57,3 +59,5 @@ pcb_t* headBlocked(int *semAdd);
 *l’inizializzazione della struttura dati.
 */
 void initASL();
+
+#endif
