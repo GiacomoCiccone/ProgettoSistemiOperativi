@@ -14,6 +14,8 @@ extern pcb_PTR ready_q;      //ready queue
 extern pcb_PTR curr_proc;    //current process
 extern int dev_sem[SEM_NUM]; //device semaphores
 
+int pow2[] =  {0,1,2,4,8,16,32,64,128,256};
+
 void returnToProcess()
 {
     LDST(&iep_s);
@@ -37,7 +39,7 @@ memaddr* getInterruptingLineAddr(int n)
 int getHighestPriorityIntLine(int intmap)
 {
     for(int i=0; i<8; i++){
-        if(intmap & i*2)
+        if(intmap & pow2[i])
             return i;
     }
 }
@@ -48,7 +50,7 @@ int getHighestPriorityIntDevice(memaddr* int_line_addr)
 
     for(int i=0; i<8; i++)
     {
-        if(bitmap & i*2)
+        if(bitmap & pow2[i])
             return i;
     }
 }
