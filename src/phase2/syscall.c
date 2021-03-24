@@ -67,7 +67,7 @@ void terminateRec(pcb_PTR p)
         //controlliamo se il semaforo e' di un device
         for (unsigned int i = 0; i < SEM_NUM; i++)
         {
-            if (sem == dev_sem[i])
+            if (sem == &dev_sem[i])
             {
                 sb_count--; //decrementiamo i soft blocked
                 (*sem)--;   /*istruzione necessaria perche' fuori dal ciclo
@@ -79,7 +79,6 @@ void terminateRec(pcb_PTR p)
     else    //e' nella ready queue
     {
         outProcQ(&ready_q, p);
-        p_count--;
     }
     freePcb(p);    //restituiamo il processo alla freepcb
     p_count--;    //decrementiamo
@@ -87,27 +86,29 @@ void terminateRec(pcb_PTR p)
 
 void terminateProcess()
 {
-    outChild(curr_proc);    //rimuove curr proc dalla lista dei figli del padre
     if (emptyChild(curr_proc))  //curr proc non ha figli
     {
+        outChild(curr_proc);    //rimuove curr proc dalla lista dei figli del padre
         freePcb(curr_proc);
         p_count--;
     }
     else    //curr ha figli
     {
         terminateRec(curr_proc);
+        outChild(curr_proc);    //rimuove curr proc dalla lista dei figli del padre
     }
+    curr_proc = NULL;
     scheduler();
 }
 
 void passeren(state_t *statep)
 {
-    int *semadd = (int*) statep->gpr[4];    //prendiamo l'indirizzo del semaforo
+    int *semadd = (int*) statep->reg_a1;    //prendiamo l'indirizzo del semaforo
     (*semadd)--;    //decrementiamo
     if ((*semadd) < 0)    //bisogna bloccarlo sul semaforo
     {
-        insertBlocked(semadd, curr_proc);   //blocchiamo il processo
         copyState(statep, (&curr_proc->p_s));
+        insertBlocked(semadd, curr_proc);   //blocchiamo il processo
         scheduler();    //chiamiamo lo scheduler
     }
     LDST(statep);   //curr proc non e' stato bloccato
@@ -115,21 +116,21 @@ void passeren(state_t *statep)
 
 void verhogen(state_t *statep)
 {
-    int *semadd = (int*) statep->gpr[4];    //prendiamo l'indirizzo del semaforo
+    int *semadd = (int*) statep->reg_a1;    //prendiamo l'indirizzo del semaforo
     if ((*semadd) < 0)  //ci sono processi bloccati
     {
         pcb_PTR ready_p = removeBlocked(semadd);
         insertProcQ(&ready_q, ready_p);    //inseriamo il primo processo bloccato nella ready queue
     }
-    (*semadd)--;    //decrementiamo
+    (*semadd)++;    //incrementiamo
     LDST(statep);
 }
 
 void waitForIO(state_t *statep)
 {
-    int line = statep->gpr[4];  //preleviamo la line dal registro a1
-    int device = statep->gpr[5]; //preleviamo il device dal registro a2
-    int read = statep->gpr[6];  //preleviamo se e' read da terminale da a3
+    int line = statep->reg_a1;  //preleviamo la line dal registro a1
+    int device = statep->reg_a2; //preleviamo il device dal registro a2
+    int read = statep->reg_a3;  //preleviamo se e' read da terminale da a3
     if (line < DISKINT || line > TERMINT)   //fuori dal range delle linee
     {
         terminateProcess(); //terminiamo il processo
@@ -141,7 +142,7 @@ void waitForIO(state_t *statep)
         (*sem)--;   //decrementiamo il semaforo
         insertBlocked(sem, curr_proc);  //blocchiamo il processo
         sb_count++; //aumentiamo i soft blocked
-        statep->gpr[1] = OK;    //valore di ritorno in v0 
+        statep->reg_v0 = OK;    //valore di ritorno in v0 
         copyState(statep, &(curr_proc->p_s));   //copiamo lo stato
         scheduler();    //scheduler
     }
@@ -152,7 +153,7 @@ void getCpuTime(state_t *statep) //TODO da controllare se è necessario aggiorna
     cpu_t currTime;
     STCK(currTime); //tempo attuale
     curr_proc->p_time += (currTime - startTod); //aggiorno il tempo
-    statep->gpr[1] = curr_proc->p_time; //preparo il regitro di ritorno
+    statep->reg_v0 = curr_proc->p_time; //preparo il regitro di ritorno
     STCK(startTod); //faccio ripartire il "cronometro"
     LDST(statep);
 }
@@ -172,6 +173,6 @@ void getSupportData(state_t *statep)
 {
     support_t *sus;
     sus = curr_proc->p_supportStruct;
-    statep->gpr[1] = sus;
+    statep->reg_v0 = sus;
     LDST(statep);
 }

@@ -48,7 +48,7 @@ void scheduler()
         {
             state_t p_s;    //bisogna prima settare lo status register per abilitare gli interrupt
             STST(&p_s);
-            p_s.status = p_s.status | 0x4; //abilitiamo gli interrupt
+            p_s.status = p_s.status | IEPON; //abilitiamo gli interrupt
             setPLT(1000000000);    //carichiamo il PLT con un valore alto
             LDST(&p_s);
             WAIT();
