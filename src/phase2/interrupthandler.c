@@ -14,7 +14,7 @@ extern pcb_PTR ready_q;      //ready queue
 extern pcb_PTR curr_proc;    //current process
 extern int dev_sem[SEM_NUM]; //device semaphores
 
-int pow2[] =  {0,1,2,4,8,16,32,64,128,256};
+int pow2[] =  {1,2,4,8,16,32,64,128,256};
 
 void returnToProcess()
 {
