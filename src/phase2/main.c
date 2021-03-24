@@ -66,7 +66,7 @@ int main(){
     proc->p_prev_sib = NULL;
     proc->p_prnt = NULL;
 
-    proc->p_semAdd = NULL
+    proc->p_semAdd = NULL;
 
     proc->p_time = 0;
     proc->p_supportStruct = NULL;
