@@ -7,6 +7,16 @@
 #include "exceptionhandler.h"
 #include "scheduler.h"
 
+int p_count;          //process count
+int sb_count;         //soft-block count
+pcb_PTR ready_q;      //ready queue
+pcb_PTR curr_proc;    //current process
+int dev_sem[SEM_NUM]; //device semaphores
+
+extern void exceptionHandler();
+extern void test();
+extern void uTLB_RefillHandler();
+
 
 int main(){
 
@@ -16,6 +26,8 @@ int main(){
     pu_vec->tlb_refill_stackPtr = (memaddr) KERNELSTACK;
     pu_vec->exception_handler = (memaddr) exceptionHandler;
     pu_vec->exception_stackPtr = (memaddr) KERNELSTACK;
+
+    
 
     /*inizializzazione strutture dati fase 1*/
     initPcbs();  //inizializza la pcb_free

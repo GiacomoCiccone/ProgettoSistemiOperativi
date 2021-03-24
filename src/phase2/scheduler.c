@@ -6,6 +6,13 @@
 #include "asl.h"
 #include "main.h"
 
+extern int p_count;          //process count
+extern int sb_count;         //soft-block count
+extern pcb_PTR ready_q;      //ready queue
+extern pcb_PTR curr_proc;    //current process
+extern int dev_sem[SEM_NUM]; //device semaphores
+cpu_t startTod;  //servono per misurare l'intervallo di tempo
+cpu_t finTod;
 
 /*funzione per settare il PLT*/
 void setPLT(unsigned int us)

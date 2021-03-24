@@ -5,6 +5,14 @@
 #include "../pandos_const.h"
 #include "../pandos_types.h"
 
+extern int p_count;          //process count
+extern int sb_count;         //soft-block count
+extern pcb_PTR ready_q;      //ready queue
+extern pcb_PTR curr_proc;    //current process
+extern int dev_sem[SEM_NUM]; //device semaphores
+extern cpu_t startTod;  //servono per misurare l'intervallo di tempo
+extern cpu_t finTod;
+
 void createProcess(state_t *statep)
 {
     pcb_PTR new_p = allocPcb();

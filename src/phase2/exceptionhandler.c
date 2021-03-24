@@ -6,7 +6,11 @@
 #include "interrupthandler.h"
 #include "main.h"
 
-
+extern int p_count;          //process count
+extern int sb_count;         //soft-block count
+extern pcb_PTR ready_q;      //ready queue
+extern pcb_PTR curr_proc;    //current process
+extern int dev_sem[SEM_NUM]; //device semaphores
 
 void exceptionHandler(){
     state_t* iep_s;
