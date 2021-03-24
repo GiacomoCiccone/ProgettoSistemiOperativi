@@ -46,7 +46,7 @@ void exceptionHandler()
         passUpOrDie(GENERALEXCEPT);
         break;
     case 8: //syscall
-        if ((iep_s->status & USERPON) == 0x00000000)    //dovrebbe controllare se e' in kernel mode non sono sicuro
+        if ((iep_s->status & USERPON) != ALLOFF)    //dovrebbe controllare se e' in kernel mode non sono sicuro
         {
             terminateProcess();    //se in user mode va terminato
         }
