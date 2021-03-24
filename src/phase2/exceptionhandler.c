@@ -12,12 +12,25 @@ extern pcb_PTR ready_q;      //ready queue
 extern pcb_PTR curr_proc;    //current process
 extern int dev_sem[SEM_NUM]; //device semaphores
 
+void passUpOrDie(unsigned int cause)
+{
+    if(curr_proc->p_supportStruct == NULL){
+        terminateProcess();
+        return;
+    }
+
+    int context_i = cause;
+
+    curr_proc->p_supportStruct->sup_exceptState[context_i] = *((state_t*)BIOSDATAPAGE);
+    unsigned int stackPtr = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_stackPtr;
+    unsigned int status = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_status;
+    unsigned int pc = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_pc;
+    LDCXT(stackPtr, status, pc);
+}
+
 void exceptionHandler()
 {
-    for (int i = 0; i < 100; i++)
-    {
-        ;
-    }
+
     state_t* iep_s;
     iep_s = (state_t*)BIOSDATAPAGE;    //preleviamo l'exception state
     int exc_code = (iep_s->cause & 0x3C) >> 2;    //preleviamo il campo .ExcCode
@@ -26,7 +39,7 @@ void exceptionHandler()
     case 0: //interrupt
         interruptHandler();
         break;
-    case 1 ... 3: //TLB Exception
+    case 1 ... 3: //TLB Exception   
         passUpOrDie(PGFAULTEXCEPT);
         break;
     case 4 ... 7: case 9 ... 12: //program traps
@@ -78,19 +91,4 @@ void syscallHandler(unsigned int sys, state_t* iep_s)
         passUpOrDie(GENERALEXCEPT);
         break;
     }
-}
-
-void passUpOrDie(unsigned int cause){
-    if(curr_proc->p_supportStruct == NULL){
-        terminateProcess();
-        return;
-    }
-
-    int context_i = cause;
-
-    curr_proc->p_supportStruct->sup_exceptState[context_i] = *((state_t*)BIOSDATAPAGE);
-    unsigned int stackPtr = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_stackPtr;
-    unsigned int status = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_status;
-    unsigned int pc = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_pc;
-    LDCXT(stackPtr, status, pc);
 }

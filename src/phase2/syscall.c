@@ -42,13 +42,13 @@ void createProcess(state_t *statep)
     }
     else
     {
-        new_p->p_supportStruct = statep->gpr[5];
         insertProcQ(&ready_q, new_p);   //inseriamo nella ready queue
         curr_proc++;    //incrementiamo i processi ready
         insertChild(curr_proc, new_p);    //inseriamo come figlio di curr
         new_p->p_time = 0;
+        new_p->p_supportStruct = statep->gpr[5];
+        copyState((state_t*) &(statep->gpr[4]),(&new_p->p_s));
         statep->gpr[1] = OK;
-        copyState((&new_p->p_s), (state_t*) &(statep->gpr[4]));
         LDST(statep);   //ricarichiamo la CPU
     }  
 }
@@ -107,7 +107,7 @@ void passeren(state_t *statep)
     if ((*semadd) < 0)    //bisogna bloccarlo sul semaforo
     {
         insertBlocked(semadd, curr_proc);   //blocchiamo il processo
-        copyState((&curr_proc->p_s), statep);
+        copyState(statep, (&curr_proc->p_s));
         scheduler();    //chiamiamo lo scheduler
     }
     LDST(statep);   //curr proc non e' stato bloccato
@@ -142,7 +142,7 @@ void waitForIO(state_t *statep)
         insertBlocked(sem, curr_proc);  //blocchiamo il processo
         sb_count++; //aumentiamo i soft blocked
         statep->gpr[1] = OK;    //valore di ritorno in v0 
-        copyState(&(curr_proc->p_s), statep);   //copiamo lo stato
+        copyState(statep, &(curr_proc->p_s));   //copiamo lo stato
         scheduler();    //scheduler
     }
 }
@@ -163,7 +163,7 @@ void waitForClock(state_t *statep)
     (*sem)--;
     sb_count++;
     insertBlocked(sem, curr_proc);
-    copyState(&(curr_proc->p_s), statep);
+    copyState(statep, &(curr_proc->p_s));
     scheduler();
 
 }
