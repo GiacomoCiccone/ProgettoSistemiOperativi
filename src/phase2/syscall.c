@@ -136,7 +136,7 @@ void waitForClock(state_t *statep)
     (*sem)--;
     sb_count++;
     insertBlocked(sem, curr_proc);
-    copyState(&(curr_proc), statep);
+    copyState(&(curr_proc->p_s), statep);
     scheduler();
 
 }
