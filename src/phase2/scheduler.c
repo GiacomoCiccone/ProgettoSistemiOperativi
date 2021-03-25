@@ -50,7 +50,7 @@ void scheduler()
             STST(&p_s);
             p_s.status = p_s.status | IEPON; //abilitiamo gli interrupt
             setPLT(1000000000);    //carichiamo il PLT con un valore alto
-            LDST(&p_s);
+            setSTATUS(&p_s);
             WAIT();
         }
         else if(p_count > 0 && sb_count == 0)    //deadlock si chiama PANIC
