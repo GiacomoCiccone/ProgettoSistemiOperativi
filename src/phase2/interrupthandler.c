@@ -82,7 +82,7 @@ void interruptHandler(){
         int status_code;
         if(int_line == 7){
             termreg_t* t_r = (termreg_t*) d_r;
-            read = t_r->recv_status == READY;
+            read = t_r->transm_status == READY;
 
             if(read){
                 status_code = t_r->transm_status;
