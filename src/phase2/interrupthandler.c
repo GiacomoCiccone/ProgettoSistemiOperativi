@@ -79,14 +79,23 @@ void interruptHandler(){
         int dev_n = getHighestPriorityIntDevice(interrupting_line_addr);  //controlla il device con priorità maggiore che ha causato l'interrupt
         devreg_t* d_r = (devreg_t*) getDevRegAddr(int_line, dev_n);       //calcola il device register
         
+        int status_code;
         if(int_line == 7){
             termreg_t* t_r = (termreg_t*) d_r;
             read = t_r->recv_status == READY;
+
+            if(read){
+                status_code = t_r->transm_status;
+                t_r->transm_command = ACK;
+            } else {
+                status_code = t_r->recv_status;
+                t_r->recv_command = ACK;
+            }
+        } else {
+            status_code = d_r->dtp.status;  //salva lo status code
+            d_r->dtp.command = ACK;             //invio comando ack per riconoscere l'interrupt
         }
 
-        int status_code = d_r->dtp.status;  //salva lo status code
-        d_r->dtp.command = ACK;             //invio comando ack per riconoscere l'interrupt
-        
         int sem_i = getDeviceSemaphoreIndex(int_line, dev_n, read); //V operation su semaforo associato a device
         pcb_PTR blocked_proc = removeBlocked(&dev_sem[sem_i]);
         dev_sem[sem_i]--;
