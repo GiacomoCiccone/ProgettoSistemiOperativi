@@ -46,14 +46,7 @@ void exceptionHandler()
         passUpOrDie(GENERALEXCEPT);
         break;
     case 8: //syscall
-        if ((iep_s->status & USERPON) != ALLOFF)    //dovrebbe controllare se e' in kernel mode non sono sicuro
-        {
-            terminateProcess();    //se in user mode va terminato
-        }
-        else
-        {
-            syscallHandler(iep_s->gpr[3], iep_s);   //passiamo all'handler delle sys call il numero di syscall
-        }
+        syscallHandler(iep_s->gpr[3], iep_s);   //passiamo all'handler delle sys call il numero di syscall
         break;
     }
 }
@@ -61,6 +54,12 @@ void exceptionHandler()
 void syscallHandler(unsigned int sys, state_t* iep_s)
 {
     iep_s->pc_epc += 4;    //incrementiamo il PC del current process
+    
+    if(iep_s->status & (1<<3)){ //controlla se il processo chiamante è in user mode
+        iep_s->cause = (RI<<CAUSESHIFT);
+        exceptionHandler();
+    }
+
     switch (sys)
     {
     case 1:
