@@ -55,7 +55,6 @@ int getHighestPriorityIntDevice(memaddr* int_line_addr)
     }
 }
 
-
 void interruptHandler(){
     iep_s = (state_t*)BIOSDATAPAGE;    //preleviamo l'exception state
     int int_map = (iep_s->cause & 0xFF00) >> 8;
@@ -102,7 +101,10 @@ void interruptHandler(){
 
         blocked_proc->p_s.reg_v0 = status_code; //inserisce status code in v0
         insertProcQ(&ready_q, blocked_proc);     //processo passa da blocked a ready
-        returnToProcess();                      //torno al processo che era in esecuzione
+        if(curr_proc != NULL)
+            returnToProcess();                      //torno al processo che era in esecuzione
+        else
+            scheduler();
         break;
     }
 }
