@@ -68,12 +68,13 @@ void interruptHandler(){
         break;
     case 2: //System wide interval timer
         LDIT(100000);
-        while(headBlocked(&dev_sem[SEM_NUM-1]) != NULL)
+        while(headBlocked(&(dev_sem[SEM_NUM-1])) != NULL)
         {
-            insertProcQ(&ready_q, removeBlocked(&dev_sem[SEM_NUM - 1]));
+            insertProcQ(&ready_q, removeBlocked(&(dev_sem[SEM_NUM - 1])));
+            sb_count--;
         }
         dev_sem[SEM_NUM-1] = 0;
-        LDST(&iep_s);
+        LDST(iep_s);
         break;
     case 3 ... 7: ;//interrupt lines
         memaddr* interrupting_line_addr = getInterruptLineAddr((int)int_line); //calcola l'indirizzo dell'interrupt line
@@ -102,7 +103,7 @@ void interruptHandler(){
         blocked_proc->p_s.reg_v0 = status_code; //inserisce status code in v0
         insertProcQ(&ready_q, blocked_proc);     //processo passa da blocked a ready
         if(curr_proc != NULL)
-            LDST(&iep_s);                      //torno al processo che era in esecuzione
+            LDST(iep_s);                      //torno al processo che era in esecuzione
         else
             scheduler();
         break;
