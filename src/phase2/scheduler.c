@@ -49,11 +49,10 @@ void scheduler()
         } 
         if(p_count > 0 && sb_count > 0)    //questa condizione deve invocare WAIT
         {
-            state_t p_s;    //bisogna prima settare lo status register per abilitare gli interrupt
-            STST(&p_s);
-            p_s.status = p_s.status | IEPON | IMON; //abilitiamo gli interrupt
+            unsigned int status;    //bisogna prima settare lo status register per abilitare gli interrupt
+            status = ALLOFF | IECON | IMON; //abilitiamo gli interrupt
             setPLT(1000000000);    //carichiamo il PLT con un valore alto
-            setSTATUS(&p_s);
+            setSTATUS(status);
             WAIT();
         }
         else if(p_count > 0 && sb_count == 0)    //deadlock si chiama PANIC
