@@ -41,7 +41,7 @@ void createProcess(state_t *statep)
     pcb_PTR new_p = allocPcb();
     if (new_p == NULL)
     {
-        statep->gpr[1] = NOPROC;  //non e' stato possibile allocare il processo
+        statep->reg_v0 = NOPROC;  //non e' stato possibile allocare il processo
         LDST(statep);   //ricarichiamo la CPU
     }
     else
@@ -49,10 +49,9 @@ void createProcess(state_t *statep)
         insertProcQ(&ready_q, new_p);   //inseriamo nella ready queue
         curr_proc++;    //incrementiamo i processi ready
         insertChild(curr_proc, new_p);    //inseriamo come figlio di curr
-        new_p->p_time = 0;
-        new_p->p_supportStruct = statep->gpr[5];
-        copyState((state_t*) &(statep->gpr[4]),(&new_p->p_s));
-        statep->gpr[1] = OK;
+        new_p->p_supportStruct = (support_t*) statep->reg_a2;
+        copyState((state_t*) statep->reg_a1, &(new_p->p_s));
+        statep->reg_v0 = OK;
         LDST(statep);   //ricarichiamo la CPU
     }  
 }
@@ -71,7 +70,7 @@ void terminateRec(pcb_PTR p)
         //controlliamo se il semaforo e' di un device
         for (unsigned int i = 0; i < SEM_NUM; i++)
         {
-            if (sem == &dev_sem[i])
+            if (sem == &(dev_sem[i]))
             {
                 sb_count--; //decrementiamo i soft blocked
                 (*sem)--;   /*istruzione necessaria perche' fuori dal ciclo
@@ -98,8 +97,8 @@ void terminateProcess()
     }
     else    //curr ha figli
     {
-        terminateRec(curr_proc);
         outChild(curr_proc);    //rimuove curr proc dalla lista dei figli del padre
+        terminateRec(curr_proc);
     }
     curr_proc = NULL;
     scheduler();
@@ -193,6 +192,6 @@ void getSupportData(state_t *statep)
 {
     support_t *sus;
     sus = curr_proc->p_supportStruct;
-    statep->reg_v0 = sus;
+    statep->reg_v0 = (memaddr) sus;
     LDST(statep);
 }

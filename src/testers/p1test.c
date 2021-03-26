@@ -32,7 +32,7 @@ char *mp = okbuf;
 
 
 #define TRANSMITTED	5
-#define ACK	1
+#define ACK			1
 #define PRINTCHR	2
 #define CHAROFFSET	8
 #define STATUSMASK	0xFF

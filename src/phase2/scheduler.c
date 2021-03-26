@@ -28,7 +28,7 @@ void scheduler()
     {
         if (curr_proc->p_semAdd == NULL)
         {
-            insertProcQ(&ready_q, curr_proc); //ATTENZIONE assicurarsi che curr_proc sia aggiornato allo stato corrente dall'interrupt
+           insertProcQ(&ready_q, curr_proc); //ATTENZIONE assicurarsi che curr_proc sia aggiornato allo stato corrente dall'interrupt
         }
         STCK(finTod);   //"ferma" il "cronometro"
         curr_proc->p_time += (finTod - startTod);   //aggiorna il time del processo
@@ -50,8 +50,7 @@ void scheduler()
         if(p_count > 0 && sb_count > 0)    //questa condizione deve invocare WAIT
         {
             unsigned int status;    //bisogna prima settare lo status register per abilitare gli interrupt
-            getSTATUS(&status);
-            status = status | IECON | IMON; //abilitiamo gli interrupt
+            status = ALLOFF | IECON | IMON; //abilitiamo gli interrupt
             setPLT(1000000000);    //carichiamo il PLT con un valore alto
             setSTATUS(status);
             WAIT();

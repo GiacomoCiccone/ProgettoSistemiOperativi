@@ -18,7 +18,8 @@ extern void uTLB_RefillHandler();
 extern void exceptionHandler();
 extern void copyState();
 
-int main(){
+int main()
+{
 
     /*popolamento passup vector*/
     passupvector_t *pu_vec = (passupvector_t*) PASSUPVECTOR;

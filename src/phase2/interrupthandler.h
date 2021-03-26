@@ -7,7 +7,6 @@
 #define INTERRUPTINGLINEBASEADDR 0x10000040;
 
 void interruptHandler();
-void returnToProcess();
 memaddr* getDevRegAddr(int int_line, int dev_n);
 memaddr* getInterruptLine(int n);
 int getHighestPriorityIntDevice(memaddr* int_line_addr);
