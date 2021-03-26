@@ -42,7 +42,6 @@ void scheduler()
     }
     else    //se la ready queue e' vuota
     {
-        curr_proc = NULL;
         if (p_count == 0)   //se process count e' zero invocare HALT
         {
             HALT();

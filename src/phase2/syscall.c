@@ -183,7 +183,7 @@ void getCpuTime(state_t *statep) //TODO da controllare se è necessario aggiorna
 
 void waitForClock(state_t *statep)
 {
-    int *sem = &dev_sem[SEM_NUM - 1];   //l'ultimo semaforo e' dell'interval timer
+    int *sem = &(dev_sem[SEM_NUM - 1]);   //l'ultimo semaforo e' dell'interval timer
     (*sem)--;
     sb_count++;
     insertBlocked(sem, curr_proc);
