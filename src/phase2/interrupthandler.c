@@ -71,13 +71,16 @@ void interruptHandler(){
         break;
     case 2: //System wide interval timer
         LDIT(100000);
-        while(headBlocked(&(dev_sem[SEM_NUM-1])) != NULL)
+        while(headBlocked(&(dev_sem[SEM_NUM-1])) != NULL) //svuoto processi bloccati su semaforo interval timer
         {
             insertProcQ(&ready_q, removeBlocked(&(dev_sem[SEM_NUM - 1])));
-            sb_count--;
         }
+        sb_count = 0;
         dev_sem[SEM_NUM-1] = 0;
-        LDST(iep_s);
+        if(curr_proc != NULL)
+            LDST(iep_s);
+        else
+            scheduler();
         break;
     case 3 ... 7: ;//interrupt lines
         memaddr* interrupting_line_addr = getInterruptLineAddr((int)int_line); //calcola l'indirizzo dell'interrupt line
