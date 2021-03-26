@@ -58,19 +58,6 @@ int main(){
 
     copyState(&p1state, (&proc->p_s));
     
-    /* lo fa gia una funzione di fase 1
-    proc->p_child = NULL;
-    proc->p_next = NULL;
-    proc->p_next_sib = NULL;
-    proc->p_prev = NULL;
-    proc->p_prev_sib = NULL;
-    proc->p_prnt = NULL;
-
-    proc->p_semAdd = NULL;
-
-    proc->p_time = 0;
-    proc->p_supportStruct = NULL;*/
-    
     insertProcQ(&ready_q, proc);
     scheduler();
 }

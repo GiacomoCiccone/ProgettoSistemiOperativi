@@ -55,6 +55,7 @@ int getHighestPriorityIntDevice(memaddr* int_line_addr)
     }
 }
 
+
 void interruptHandler(){
     iep_s = (state_t*)BIOSDATAPAGE;    //preleviamo l'exception state
     int int_map = (iep_s->cause & 0xFF00) >> 8;
@@ -78,13 +79,12 @@ void interruptHandler(){
         memaddr* interrupting_line_addr = getInterruptLineAddr(int_line); //calcola l'indirizzo dell'interrupt line
         int dev_n = getHighestPriorityIntDevice(interrupting_line_addr);  //controlla il device con priorità maggiore che ha causato l'interrupt
         devreg_t* d_r = (devreg_t*) getDevRegAddr(int_line, dev_n);       //calcola il device register
-        
         int status_code;
         if(int_line == 7){
             termreg_t* t_r = (termreg_t*) d_r;
             read = t_r->transm_status == READY;
 
-            if(read){
+            if(!read){
                 status_code = t_r->transm_status;
                 t_r->transm_command = ACK;
             } else {

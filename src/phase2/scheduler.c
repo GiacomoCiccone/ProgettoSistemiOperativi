@@ -26,7 +26,10 @@ void scheduler()
 {
     if (curr_proc != NULL)  //inseriamo in coda il processo corrente
     {
-        insertProcQ(&ready_q, curr_proc); //ATTENZIONE assicurarsi che curr_proc sia aggiornato allo stato corrente dall'interrupt
+        if (curr_proc->p_semAdd == NULL)
+        {
+            insertProcQ(&ready_q, curr_proc); //ATTENZIONE assicurarsi che curr_proc sia aggiornato allo stato corrente dall'interrupt
+        }
         STCK(finTod);   //"ferma" il "cronometro"
         curr_proc->p_time += (finTod - startTod);   //aggiorna il time del processo
     }
@@ -48,7 +51,7 @@ void scheduler()
         {
             state_t p_s;    //bisogna prima settare lo status register per abilitare gli interrupt
             STST(&p_s);
-            p_s.status = p_s.status | IEPON; //abilitiamo gli interrupt
+            p_s.status = p_s.status | IEPON | IMON; //abilitiamo gli interrupt
             setPLT(1000000000);    //carichiamo il PLT con un valore alto
             setSTATUS(&p_s);
             WAIT();

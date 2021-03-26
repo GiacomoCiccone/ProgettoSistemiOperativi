@@ -30,7 +30,6 @@ void passUpOrDie(unsigned int cause)
 
 void exceptionHandler()
 {
-
     state_t* iep_s;
     iep_s = (state_t*)BIOSDATAPAGE;    //preleviamo l'exception state
     int exc_code = (iep_s->cause & 0x3C) >> 2;    //preleviamo il campo .ExcCode
@@ -53,12 +52,13 @@ void exceptionHandler()
 
 void syscallHandler(unsigned int sys, state_t* iep_s)
 {
-    iep_s->pc_epc += 4;    //incrementiamo il PC del current process
-    
-    if(iep_s->status & (1<<3)){ //controlla se il processo chiamante è in user mode
-        iep_s->cause = (RI<<CAUSESHIFT);
-        exceptionHandler();
+    if((iep_s->status & USERPON) != ALLOFF)  //controlla se il processo chiamante è in user mode
+    {
+        iep_s->cause |= (RI<<CAUSESHIFT);
+        passUpOrDie(GENERALEXCEPT);
     }
+
+    iep_s->pc_epc += 4;    //incrementiamo il PC del current process
 
     switch (sys)
     {

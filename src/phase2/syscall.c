@@ -4,6 +4,8 @@
 #include "main.h"
 #include "../pandos_const.h"
 #include "../pandos_types.h"
+#include "asl.h"
+#include "pcb.h"
 
 extern int p_count;          //process count
 extern int sb_count;         //soft-block count
@@ -12,6 +14,8 @@ extern pcb_PTR curr_proc;    //current process
 extern int dev_sem[SEM_NUM]; //device semaphores
 extern cpu_t startTod;  //servono per misurare l'intervallo di tempo
 extern cpu_t finTod;
+extern memaddr* getDevRegAddr(int int_line, int dev_n);
+
 
 void copyState(state_t *source, state_t *dest)
 {   
@@ -117,12 +121,15 @@ void passeren(state_t *statep)
 void verhogen(state_t *statep)
 {
     int *semadd = (int*) statep->reg_a1;    //prendiamo l'indirizzo del semaforo
-    if ((*semadd) < 0)  //ci sono processi bloccati
+    (*semadd)++;    //incrementiamo
+    if ((*semadd) <= 0)  //ci sono processi bloccati
     {
         pcb_PTR ready_p = removeBlocked(semadd);
-        insertProcQ(&ready_q, ready_p);    //inseriamo il primo processo bloccato nella ready queue
+        if (ready_p != NULL)
+        {
+            insertProcQ(&ready_q, ready_p);    //inseriamo il primo processo bloccato nella ready queue
+        }
     }
-    (*semadd)++;    //incrementiamo
     LDST(statep);
 }
 
@@ -142,7 +149,19 @@ void waitForIO(state_t *statep)
         (*sem)--;   //decrementiamo il semaforo
         insertBlocked(sem, curr_proc);  //blocchiamo il processo
         sb_count++; //aumentiamo i soft blocked
-        statep->reg_v0 = OK;    //valore di ritorno in v0 
+        devreg_t* d_r = (devreg_t*) getDevRegAddr(line, device);
+        if (read && line == 7)
+        {
+            statep->reg_v0 = d_r->term.recv_status;    //valore di ritorno in v0 
+        }
+        else if (line == 7)
+        {
+            statep->reg_v0 = d_r->term.transm_status;    //valore di ritorno in v0 
+        }
+        else
+        {
+            statep->reg_v0 = d_r->dtp.status;
+        } 
         copyState(statep, &(curr_proc->p_s));   //copiamo lo stato
         scheduler();    //scheduler
     }
@@ -165,6 +184,7 @@ void waitForClock(state_t *statep)
     sb_count++;
     insertBlocked(sem, curr_proc);
     copyState(statep, &(curr_proc->p_s));
+    curr_proc = NULL;
     scheduler();
 
 }
