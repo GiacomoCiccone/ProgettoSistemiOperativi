@@ -57,8 +57,10 @@ int main()
     p1state.reg_t9 = (memaddr) test; 
     p1state.status = ALLOFF | IEPON | IMON | TEBITON; //abilita interrupt e interval timer
 
-    copyState(&p1state, (&proc->p_s));
+    copyState(&p1state, &(proc->p_s));
     
     insertProcQ(&ready_q, proc);
     scheduler();
+
+    return 0;
 }
