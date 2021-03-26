@@ -47,7 +47,7 @@ void createProcess(state_t *statep)
     else
     {
         insertProcQ(&ready_q, new_p);   //inseriamo nella ready queue
-        curr_proc++;    //incrementiamo i processi ready
+        p_count++;   //incrementiamo i processi ready
         insertChild(curr_proc, new_p);    //inseriamo come figlio di curr
         new_p->p_supportStruct = (support_t*) statep->reg_a2;
         copyState((state_t*) statep->reg_a1, &(new_p->p_s));
@@ -146,23 +146,27 @@ void waitForIO(state_t *statep)
         int index = getDeviceSemaphoreIndex(line, device, read);  //calcolo indice semaforo
         int *sem = &(dev_sem[index]);   //prendiamo l'indirizzo di tale semaforo
         (*sem)--;   //decrementiamo il semaforo
-        insertBlocked(sem, curr_proc);  //blocchiamo il processo
-        sb_count++; //aumentiamo i soft blocked
-        devreg_t* d_r = (devreg_t*) getDevRegAddr(line, device);
-        if (read && line == 7)
+        if ((*sem) < 0)
         {
-            statep->reg_v0 = d_r->term.recv_status;    //valore di ritorno in v0 
+            insertBlocked(sem, curr_proc);  //blocchiamo il processo
+            sb_count++; //aumentiamo i soft blocked
+            devreg_t* d_r = (devreg_t*) getDevRegAddr(line, device);
+            if (read && line == 7)
+            {
+                statep->reg_v0 = d_r->term.recv_status;    //valore di ritorno in v0 
+            }
+            else if (line == 7)
+            {
+                statep->reg_v0 = d_r->term.transm_status;    //valore di ritorno in v0 
+            }
+            else
+            {
+                statep->reg_v0 = d_r->dtp.status;
+            } 
+            copyState(statep, &(curr_proc->p_s));   //copiamo lo stato
+            scheduler();    //scheduler
         }
-        else if (line == 7)
-        {
-            statep->reg_v0 = d_r->term.transm_status;    //valore di ritorno in v0 
-        }
-        else
-        {
-            statep->reg_v0 = d_r->dtp.status;
-        } 
-        copyState(statep, &(curr_proc->p_s));   //copiamo lo stato
-        scheduler();    //scheduler
+        LDST(statep);
     }
 }
 
