@@ -151,6 +151,7 @@ void waitForIO(state_t *statep)
             insertBlocked(sem, curr_proc);  //blocchiamo il processo
             sb_count++; //aumentiamo i soft blocked
             devreg_t* d_r = (devreg_t*) getDevRegAddr(line, device);
+            /*
             if (read && line == 7)
             {
                 statep->reg_v0 = d_r->term.recv_status;    //valore di ritorno in v0 
@@ -162,7 +163,7 @@ void waitForIO(state_t *statep)
             else
             {
                 statep->reg_v0 = d_r->dtp.status;
-            } 
+            } */
             copyState(statep, &(curr_proc->p_s));   //copiamo lo stato
             scheduler();    //scheduler
         }
