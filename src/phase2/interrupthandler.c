@@ -16,7 +16,7 @@ extern void setPLT(unsigned int us);
 extern void scheduler();
 extern cpu_t startTod;
 
-int pow2[] =  {1,2,4,8,16,32,64,128,256};
+int pow2[] =  {1,2,4,8,16,32,64,128};
 
 
 memaddr* getDevRegAddr(int int_line, int dev_n)
