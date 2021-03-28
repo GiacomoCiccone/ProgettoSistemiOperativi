@@ -12,20 +12,20 @@ extern pcb_PTR ready_q;      //ready queue
 extern pcb_PTR curr_proc;    //current process
 extern int dev_sem[SEM_NUM]; //device semaphores
 
-void passUpOrDie(unsigned int cause)
+void passUpOrDie(unsigned int cause, state_t *iep_s)
 {
     if(curr_proc->p_supportStruct == NULL){
         terminateProcess();
-        return;
     }
-
-    int context_i = cause;
-
-    curr_proc->p_supportStruct->sup_exceptState[context_i] = *((state_t*)BIOSDATAPAGE);
-    unsigned int stackPtr = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_stackPtr;
-    unsigned int status = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_status;
-    unsigned int pc = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_pc;
-    LDCXT(stackPtr, status, pc);
+    else
+    {
+        int context_i = cause;
+        copyState(iep_s, &(curr_proc->p_supportStruct->sup_exceptState[context_i]));
+        unsigned int stackPtr = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_stackPtr;
+        unsigned int status = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_status;
+        unsigned int pc = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_pc;
+        LDCXT(stackPtr, status, pc);
+    }
 }
 
 void exceptionHandler()
@@ -39,23 +39,23 @@ void exceptionHandler()
         interruptHandler();
         break;
     case 1 ... 3: //TLB Exception   
-        passUpOrDie(PGFAULTEXCEPT);
+        passUpOrDie(PGFAULTEXCEPT, iep_s);
         break;
     case 4 ... 7: case 9 ... 12: //program traps
-        passUpOrDie(GENERALEXCEPT);
+        passUpOrDie(GENERALEXCEPT, iep_s);
         break;
     case 8: //syscall
-        syscallHandler(iep_s->gpr[3], iep_s);   //passiamo all'handler delle sys call il numero di syscall
+        syscallHandler(iep_s->reg_a0, iep_s);   //passiamo all'handler delle sys call il numero di syscall
         break;
     }
 }
 
 void syscallHandler(unsigned int sys, state_t* iep_s)
 {
-    if((iep_s->status & USERPON) != ALLOFF)  //controlla se il processo chiamante è in user mode
+    if(((iep_s->status & USERPON) != ALLOFF) && (sys > 0) && (sys < 9))  //controlla se il processo chiamante è in user mode
     {
         iep_s->cause |= (RI<<CAUSESHIFT);
-        passUpOrDie(GENERALEXCEPT);
+        passUpOrDie(GENERALEXCEPT, iep_s);
     }
 
     iep_s->pc_epc += 4;    //incrementiamo il PC del current process
@@ -87,7 +87,7 @@ void syscallHandler(unsigned int sys, state_t* iep_s)
         getSupportData(iep_s);
         break;
     default:
-        passUpOrDie(GENERALEXCEPT);
+        passUpOrDie(GENERALEXCEPT, iep_s);
         break;
     }
 }

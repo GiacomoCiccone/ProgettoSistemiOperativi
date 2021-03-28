@@ -14,6 +14,7 @@ extern pcb_PTR curr_proc;    //current process
 extern int dev_sem[SEM_NUM]; //device semaphores
 extern void setPLT(unsigned int us);
 extern void scheduler();
+extern cpu_t startTod;
 
 int pow2[] =  {1,2,4,8,16,32,64,128,256};
 
@@ -57,12 +58,14 @@ int getHighestPriorityIntDevice(memaddr* int_line_addr)
 
 void interruptHandler(){
     state_t* iep_s = (state_t*) BIOSDATAPAGE;    //preleviamo l'exception state
+    cpu_t start, end;
     int int_map = ((iep_s->cause & 0xFF00) >> 8);
     int int_line = getHighestPriorityIntLine(int_map);
-    int read = 0;
+    int read;
+    STCK(start);
     switch(int_line){
     case 0: //interprocessor interrupt, disabilitato su nostra macchina
-        return;
+        PANIC();
     case 1: //PLT Interrupt
         setPLT(1000000000);        //ack interrupt
         curr_proc->p_s = *(iep_s); //copio stato processore in p_s
@@ -73,14 +76,24 @@ void interruptHandler(){
         LDIT(100000);
         while(headBlocked(&(dev_sem[SEM_NUM-1])) != NULL) //svuoto processi bloccati su semaforo interval timer
         {
-            insertProcQ(&ready_q, removeBlocked(&(dev_sem[SEM_NUM - 1])));
+            STCK(end);
+            pcb_PTR blocked = removeBlocked(&(dev_sem[SEM_NUM - 1]));
+            if (blocked != NULL)
+            {
+                blocked->p_time += (end - start);
+                insertProcQ(&ready_q, blocked);
+                sb_count--;
+            }
         }
-        sb_count = 0;
         dev_sem[SEM_NUM-1] = 0;
         if(curr_proc != NULL)
+        {
             LDST(iep_s);
+        }
         else
+        {
             scheduler();
+        }
         break;
     case 3 ... 7: ;//interrupt lines
         memaddr* interrupting_line_addr = getInterruptLineAddr((int)int_line); //calcola l'indirizzo dell'interrupt line
@@ -109,12 +122,20 @@ void interruptHandler(){
         }
 
         int sem_i = getDeviceSemaphoreIndex(int_line, dev_n, read); //V operation su semaforo associato a device
-        pcb_PTR blocked_proc = removeBlocked(&dev_sem[sem_i]);
         dev_sem[sem_i]++;
-        blocked_proc->p_s.reg_v0 = status_code; //inserisce status code in v0
-        insertProcQ(&ready_q, blocked_proc);     //processo passa da blocked a ready
+        STCK(end);
+        pcb_PTR blocked_proc = removeBlocked(&dev_sem[sem_i]);
+        if (blocked_proc != NULL)
+        {
+            blocked_proc->p_time += (end - start);
+            blocked_proc->p_s.reg_v0 = status_code; //inserisce status code in v0
+            insertProcQ(&ready_q, blocked_proc);     //processo passa da blocked a ready
+            sb_count--;
+        }
         if(curr_proc != NULL)
+        {
             LDST(iep_s);                      //torno al processo che era in esecuzione
+        }   
         else
             scheduler();
         break;

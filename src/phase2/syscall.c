@@ -68,16 +68,14 @@ void terminateRec(pcb_PTR p)
         int *sem = p->p_semAdd;
         outBlocked(p);
         //controlliamo se il semaforo e' di un device
-        for (unsigned int i = 0; i < SEM_NUM; i++)
+        if (sem >= &(dev_sem[0]) && sem <= &(dev_sem[SEM_NUM - 1]))
         {
-            if (sem == &(dev_sem[i]))
-            {
-                sb_count--; //decrementiamo i soft blocked
-                (*sem)--;   /*istruzione necessaria perche' fuori dal ciclo
-                            il semaforo sara' incrementato comunque*/
-            }
+            sb_count--;
+        }  
+        else
+        {
+            (*sem)++; //incrementiamo il semaforo
         }
-        (*sem)++; //incrementiamo il semaforo
     }
     else    //e' nella ready queue
     {
@@ -110,7 +108,7 @@ void passeren(state_t *statep)
     (*semadd)--;    //decrementiamo
     if ((*semadd) < 0)    //bisogna bloccarlo sul semaforo
     {
-        copyState(statep, (&curr_proc->p_s));
+        copyState(statep, &(curr_proc->p_s));
         insertBlocked(semadd, curr_proc);   //blocchiamo il processo
         scheduler();    //chiamiamo lo scheduler
     }
@@ -146,28 +144,10 @@ void waitForIO(state_t *statep)
         int index = getDeviceSemaphoreIndex(line, device, read);  //calcolo indice semaforo
         int *sem = &(dev_sem[index]);   //prendiamo l'indirizzo di tale semaforo
         (*sem)--;   //decrementiamo il semaforo
-        if ((*sem) < 0)
-        {
-            insertBlocked(sem, curr_proc);  //blocchiamo il processo
-            sb_count++; //aumentiamo i soft blocked
-            devreg_t* d_r = (devreg_t*) getDevRegAddr(line, device);
-            /*
-            if (read && line == 7)
-            {
-                statep->reg_v0 = d_r->term.recv_status;    //valore di ritorno in v0 
-            }
-            else if (line == 7)
-            {
-                statep->reg_v0 = d_r->term.transm_status;    //valore di ritorno in v0 
-            }
-            else
-            {
-                statep->reg_v0 = d_r->dtp.status;
-            } */
-            copyState(statep, &(curr_proc->p_s));   //copiamo lo stato
-            scheduler();    //scheduler
-        }
-        LDST(statep);
+        insertBlocked(sem, curr_proc);  //blocchiamo il processo
+        sb_count++; //aumentiamo i soft blocked
+        copyState(statep, &(curr_proc->p_s));   //copiamo lo stato
+        scheduler();    //scheduler
     }
 }
 
@@ -188,7 +168,6 @@ void waitForClock(state_t *statep)
     sb_count++;
     insertBlocked(sem, curr_proc);
     copyState(statep, &(curr_proc->p_s));
-    curr_proc = NULL;
     scheduler();
 
 }
