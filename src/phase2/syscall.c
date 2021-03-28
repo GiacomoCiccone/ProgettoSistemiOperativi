@@ -38,7 +38,7 @@ int getDeviceSemaphoreIndex(int line, int device, int read)
 
 void createProcess(state_t *statep)
 {
-    pcb_PTR new_p = allocPcb();
+    pcb_PTR new_p = allocPcb(); //alloco nuovo processo
     if (new_p == NULL)
     {
         statep->reg_v0 = NOPROC;  //non e' stato possibile allocare il processo
