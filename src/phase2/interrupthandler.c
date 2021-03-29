@@ -80,6 +80,7 @@ void interruptHandler(){
             pcb_PTR blocked = removeBlocked(&(dev_sem[SEM_NUM - 1]));
             if (blocked != NULL)
             {
+                blocked->p_semAdd = NULL;
                 blocked->p_time += (end - start);
                 insertProcQ(&ready_q, blocked);
                 sb_count--;
@@ -124,13 +125,17 @@ void interruptHandler(){
         int sem_i = getDeviceSemaphoreIndex(int_line, dev_n, read); //V operation su semaforo associato a device
         dev_sem[sem_i]++;
         STCK(end);
-        pcb_PTR blocked_proc = removeBlocked(&dev_sem[sem_i]);
-        if (blocked_proc != NULL)
+        if (dev_sem[sem_i] <= 0)
         {
-            blocked_proc->p_time += (end - start);
-            blocked_proc->p_s.reg_v0 = status_code; //inserisce status code in v0
-            insertProcQ(&ready_q, blocked_proc);     //processo passa da blocked a ready
-            sb_count--;
+            pcb_PTR blocked_proc = removeBlocked(&(dev_sem[sem_i]));
+            if (blocked_proc != NULL)
+            {
+                blocked_proc->p_semAdd = NULL;
+                blocked_proc->p_time += (end - start);
+                blocked_proc->p_s.reg_v0 = status_code; //inserisce status code in v0
+                insertProcQ(&ready_q, blocked_proc);     //processo passa da blocked a ready
+                sb_count--;
+            }
         }
         if(curr_proc != NULL)
         {

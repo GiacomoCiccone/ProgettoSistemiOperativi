@@ -18,6 +18,6 @@
         "asid": 64,
         "file": "/home/agentedrip/progetto2/src/phase2/out/kernel.stab.umps"
     },
-    "tlb-floor-address": "0xffffffff",
+    "tlb-floor-address": "0x80000000",
     "tlb-size": 16
 }

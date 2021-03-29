@@ -66,18 +66,24 @@ void terminateRec(pcb_PTR p)
     if (p->p_semAdd != NULL)    //p e' bloccato in un semaforo
     {
         int *sem = p->p_semAdd;
-        outBlocked(p);
-        //controlliamo se il semaforo e' di un device
-        if (sem >= &(dev_sem[0]) && sem <= &(dev_sem[SEM_NUM - 1]))
+        if(outBlocked(p) != NULL)
         {
-            sb_count--;
-        }  
-        else
-        {
-            (*sem)++; //incrementiamo il semaforo
+            //controlliamo se il semaforo e' di un device
+            if (sem >= &(dev_sem[0]) && sem <= &(dev_sem[SEM_NUM - 1]))
+            {
+                sb_count--;
+            }  
+            else
+            {
+                (*sem)++; //incrementiamo il semaforo
+            }
         }
     }
-    else    //e' nella ready queue
+    else if (p == curr_proc)
+    {
+        outChild(curr_proc);    //rimuove curr proc dalla lista dei figli del padre
+    }
+    else
     {
         outProcQ(&ready_q, p);
     }
@@ -95,7 +101,6 @@ void terminateProcess()
     }
     else    //curr ha figli
     {
-        outChild(curr_proc);    //rimuove curr proc dalla lista dei figli del padre
         terminateRec(curr_proc);
     }
     curr_proc = NULL;
