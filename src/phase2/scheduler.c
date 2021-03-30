@@ -23,7 +23,7 @@ void setPLT(unsigned int us)
 }
 
 void scheduler()
-{
+{    
     if (curr_proc != NULL)  //inseriamo in coda il processo corrente
     {
         STCK(finTod);   //"ferma" il "cronometro"

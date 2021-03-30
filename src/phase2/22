@@ -1,6 +1,6 @@
 {
     "boot": {
-        "core-file": "/home/agentedrip/progetto2/src/phase2/out/kernel.core.umps",
+        "core-file": "/home/agentedrip/fase22/src/phase2/out/kernel.core.umps",
         "load-core-file": true
     },
     "bootstrap-rom": "/usr/local/share/umps3/coreboot.rom.umps",
@@ -16,8 +16,8 @@
     "num-ram-frames": 64,
     "symbol-table": {
         "asid": 64,
-        "file": "/home/agentedrip/progetto2/src/phase2/out/kernel.stab.umps"
+        "file": "/home/agentedrip/fase22/src/phase2/out/kernel.stab.umps"
     },
-    "tlb-floor-address": "0x80000000",
+    "tlb-floor-address": "0x20040000",
     "tlb-size": 16
 }

@@ -14,7 +14,8 @@ extern int dev_sem[SEM_NUM]; //device semaphores
 
 void passUpOrDie(unsigned int cause, state_t *iep_s)
 {
-    if(curr_proc->p_supportStruct == NULL){
+    if(curr_proc->p_supportStruct == NULL)
+    {        
         terminateProcess();
     }
     else
@@ -33,7 +34,6 @@ void exceptionHandler()
     state_t* iep_s;
     iep_s = (state_t*)BIOSDATAPAGE;    //preleviamo l'exception state
     int exc_code = (iep_s->cause & 0x3C) >> 2;    //preleviamo il campo .ExcCode
-    iep_s->pc_epc += 4;    //incrementiamo il PC del current process
     switch(exc_code){ // ... da controllare, non so se funziona
     case 0: //interrupt
         interruptHandler();
@@ -57,7 +57,7 @@ void syscallHandler(unsigned int sys, state_t* iep_s)
         iep_s->cause |= (RI<<CAUSESHIFT);
         passUpOrDie(GENERALEXCEPT, iep_s);
     }
-
+    iep_s->pc_epc += 4;    //incrementiamo il PC del current process
     switch (sys)
     {
     case 1:

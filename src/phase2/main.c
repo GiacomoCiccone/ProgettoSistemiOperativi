@@ -27,9 +27,7 @@ int main()
     pu_vec->tlb_refill_stackPtr = (memaddr) KERNELSTACK;
     pu_vec->exception_handler = (memaddr) exceptionHandler;
     pu_vec->exception_stackPtr = (memaddr) KERNELSTACK;
-
     
-
     /*inizializzazione strutture dati fase 1*/
     initPcbs();  //inizializza la pcb_free
     initASL();   //inizializza la ASL list

@@ -75,6 +75,7 @@ pcb_t *allocPcb()
             head->p_prnt = NULL;
             head->p_semAdd = NULL;
             head->p_time = 0;
+            head->p_supportStruct = NULL;
             //head->p_s = 0  dobbiamo vedere come inizializzare questo campo!
         }
         else  //la lista ha un solo elemento
@@ -88,6 +89,7 @@ pcb_t *allocPcb()
             head->p_prnt = NULL;
             head->p_semAdd = NULL;
             head->p_time = 0;
+            head->p_supportStruct = NULL;
             //head->p_s = 0;
         }
         return head;  //ritorniamo la vecchia testa della lista   
@@ -258,7 +260,7 @@ pcb_t* removeChild(pcb_t *p)
             p->p_child = toDelete->p_next_sib;
             toDelete->p_prnt = NULL;
             toDelete->p_next_sib = NULL;
-            toDelete->p_next_sib = NULL;
+            toDelete->p_prev_sib = NULL;
             return toDelete;
         }
 

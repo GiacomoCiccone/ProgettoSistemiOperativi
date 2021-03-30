@@ -67,7 +67,7 @@ void interruptHandler(){
     case 0: //interprocessor interrupt, disabilitato su nostra macchina
         PANIC();
     case 1: //PLT Interrupt
-        setPLT(1000000000);        //ack interrupt
+        setPLT(__INT32_MAX__);        //ack interrupt
         curr_proc->p_s = *(iep_s); //copio stato processore in p_s
         insertProcQ(&ready_q, curr_proc);
         scheduler();               //chiamo lo scheduler
@@ -80,7 +80,6 @@ void interruptHandler(){
             pcb_PTR blocked = removeBlocked(&(dev_sem[SEM_NUM - 1]));
             if (blocked != NULL)
             {
-                blocked->p_semAdd = NULL;
                 blocked->p_time += (end - start);
                 insertProcQ(&ready_q, blocked);
                 sb_count--;
@@ -130,7 +129,6 @@ void interruptHandler(){
             pcb_PTR blocked_proc = removeBlocked(&(dev_sem[sem_i]));
             if (blocked_proc != NULL)
             {
-                blocked_proc->p_semAdd = NULL;
                 blocked_proc->p_time += (end - start);
                 blocked_proc->p_s.reg_v0 = status_code; //inserisce status code in v0
                 insertProcQ(&ready_q, blocked_proc);     //processo passa da blocked a ready

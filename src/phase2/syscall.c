@@ -66,17 +66,15 @@ void terminateRec(pcb_PTR p)
     if (p->p_semAdd != NULL)    //p e' bloccato in un semaforo
     {
         int *sem = p->p_semAdd;
-        if(outBlocked(p) != NULL)
+        outBlocked(p);
+        //controlliamo se il semaforo e' di un device
+        if (sem >= &(dev_sem[0]) && sem <= &(dev_sem[SEM_NUM - 1]))
         {
-            //controlliamo se il semaforo e' di un device
-            if (sem >= &(dev_sem[0]) && sem <= &(dev_sem[SEM_NUM - 1]))
-            {
-                sb_count--;
-            }  
-            else
-            {
-                (*sem)++; //incrementiamo il semaforo
-            }
+            sb_count--;
+        }  
+        else
+        {
+            (*sem)++; //incrementiamo il semaforo
         }
     }
     else if (p == curr_proc)
@@ -180,7 +178,14 @@ void waitForClock(state_t *statep)
 void getSupportData(state_t *statep)
 {
     support_t *sus;
-    sus = curr_proc->p_supportStruct;
+    if (curr_proc->p_supportStruct != NULL)
+    {
+        sus = curr_proc->p_supportStruct;
+    }
+    else
+    {
+        sus = NULL;
+    }   
     statep->reg_v0 = (memaddr) sus;
     LDST(statep);
 }
