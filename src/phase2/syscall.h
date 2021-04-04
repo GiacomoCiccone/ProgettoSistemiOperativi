@@ -3,7 +3,12 @@
 
 #include "../pandos_types.h"
 
-//copia lo stato di source in dest
+/**
+ * @brief Funzione per copiare la struttura state_t
+ * 
+ * @param source 
+ * @param dest 
+ */
 void copyState(state_t *source, state_t *dest);
 
 //calcola l'indice del semaforo di device

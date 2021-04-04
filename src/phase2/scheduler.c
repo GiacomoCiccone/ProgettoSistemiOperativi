@@ -1,5 +1,4 @@
 #include "scheduler.h"
-#include "helper.h"
 #include "../pandos_const.h"
 #include "../pandos_types.h"
 #include "pcb.h"
@@ -12,8 +11,10 @@ extern int sb_count;         //soft-block count
 extern pcb_PTR ready_q;      //ready queue
 extern pcb_PTR curr_proc;    //current process
 extern int dev_sem[SEM_NUM]; //device semaphores
-cpu_t startTod;  //servono per misurare l'intervallo di tempo
-cpu_t finTod;
+
+/*Variabili per mantenere traccia del tempo*/
+cpu_t startTod;              //Inizio dell'intervallo
+cpu_t finTod;                //Fine dell'intervallo
 
 /*funzione per settare il PLT*/
 void setPLT(unsigned int us)
@@ -24,34 +25,53 @@ void setPLT(unsigned int us)
 
 void scheduler()
 {    
-    if (curr_proc != NULL)  //inseriamo in coda il processo corrente
+    /*Se il processo corrente esiste, allora aggiungiamo il tempo in cui ha usato la CPU*/
+    if (curr_proc != NULL)
     {
-        STCK(finTod);   //"ferma" il "cronometro"
-        curr_proc->p_time += (finTod - startTod);   //aggiorna il time del processo
+        /*Ferma il cronometro*/
+        STCK(finTod);
+        /*Aggiorna il campo time del processo facendo un delta tempo tra fine e inizio intervallo*/
+        curr_proc->p_time += (finTod - startTod);
     }
-    curr_proc = removeProcQ(&ready_q);   //prendiamo il nuovo processo
-    if(curr_proc != NULL)   //se la ready queue non e' vuota
+    /*Prende il nuovo processo da schedulare*/
+    curr_proc = removeProcQ(&ready_q);
+
+    /*Se esisteva un processo pronto*/
+    if(curr_proc != NULL)
     {
-        STCK(startTod); //rinizia a "cronometrare"
-        setPLT(TIMESLICE);  //impostiamo il PLT a 5ms
+        /*Rinizia a cronometrare*/
+        STCK(startTod);
+        /*Imposta il PLT a 5ms*/
+        setPLT(TIMESLICE);
+        /*Carica lo stato nel processore*/
         LDST(&(curr_proc->p_s));
     }
-    else    //se la ready queue e' vuota
+    /*Se non esistevano processi pronti*/
+    else
     {
-        if (p_count == 0)   //se process count e' zero invocare HALT
+        /*Se non ci sono processi abbiamo finito*/
+        if (p_count == 0)
         {
+            /*Fine*/
             HALT();
-        } 
-        if(p_count > 0 && sb_count > 0)    //questa condizione deve invocare WAIT
+        }
+        /*Se esistono processi ma sono soft blockati*/
+        if(p_count > 0 && sb_count > 0)
         {
-            unsigned int status;    //bisogna prima settare lo status register per abilitare gli interrupt
-            status = ALLOFF | IECON | IMON; //abilitiamo gli interrupt
-            setPLT(__INT32_MAX__);    //carichiamo il PLT con un valore alto
+            /*Crea di uno stato da zero*/
+            unsigned int status;
+            /*Abilita interrupt, interrupt mask*/
+            status = ALLOFF | IECON | IMON;
+            /*Setta il PLT ad un valore altissimo*/
+            setPLT(__INT32_MAX__);
             setSTATUS(status);
+            /*Aspetta interrupt*/
             WAIT();
         }
-        else if(p_count > 0 && sb_count == 0)    //deadlock si chiama PANIC
+        /*Se ci sono processi ma sono in attesa circolare*/
+        else if(p_count > 0 && sb_count == 0)
         {
+            /*Deadlock*/
             PANIC();
         }
     }

@@ -1,17 +1,18 @@
 #include "main.h"
-#include "helper.h"
 #include "../pandos_const.h"
 #include "../pandos_types.h"
 #include "pcb.h"
 #include "asl.h"
 #include "scheduler.h"
 
+/*Dichiarazione variabii globali*/
 int p_count;          //process count
 int sb_count;         //soft-block count
 pcb_PTR ready_q;      //ready queue
 pcb_PTR curr_proc;    //current process
 int dev_sem[SEM_NUM]; //device semaphores
 
+/*Funzioni extern*/
 extern void exceptionHandler();
 extern void test();
 extern void uTLB_RefillHandler();
@@ -21,7 +22,7 @@ extern void copyState();
 int main()
 {
 
-    /*popolamento passup vector*/
+    /*Popolamento passup vector*/
     passupvector_t *pu_vec = (passupvector_t*) PASSUPVECTOR;
     pu_vec->tlb_refill_handler = (memaddr) uTLB_RefillHandler;
     pu_vec->tlb_refill_stackPtr = (memaddr) KERNELSTACK;
@@ -29,8 +30,8 @@ int main()
     pu_vec->exception_stackPtr = (memaddr) KERNELSTACK;
     
     /*inizializzazione strutture dati fase 1*/
-    initPcbs();  //inizializza la pcb_free
-    initASL();   //inizializza la ASL list
+    initPcbs();
+    initASL();
 
     /*init variabili globali*/
     p_count = 0;
@@ -46,18 +47,26 @@ int main()
     LDIT(100000);
 
     /*Inizializzazione processo*/
-    pcb_PTR proc = allocPcb();  //mette un processo nella Ready Queue
-    p_count++;  //incrementa il process count
+    pcb_PTR proc = allocPcb();
+    p_count++;
+
+    /*Spiegare ogni riga!!*/
     state_t p1state;
     STST(&p1state);
     RAMTOP(p1state.reg_sp);
     p1state.pc_epc = (memaddr) test;
-    p1state.reg_t9 = (memaddr) test; 
-    p1state.status = ALLOFF | IEPON | IMON | TEBITON; //abilita interrupt e interval timer
+    p1state.reg_t9 = (memaddr) test;
 
+    /*Attiviamo interrupt, interrupt mask, timer e kernel mode*/
+    p1state.status = ALLOFF | IEPON | IMON | TEBITON;
+
+    /*Copia lo stato nel campo state del processo*/
     copyState(&p1state, &(proc->p_s));
-    
+
+    /*Inserisce il processo nella ready queue*/
     insertProcQ(&ready_q, proc);
+
+    /*Chiama lo scheduler*/
     scheduler();
 
     return 0;

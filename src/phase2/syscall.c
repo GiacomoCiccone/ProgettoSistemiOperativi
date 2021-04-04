@@ -1,5 +1,4 @@
 #include "syscall.h"
-#include "helper.h"
 #include "scheduler.h"
 #include "main.h"
 #include "../pandos_const.h"
@@ -31,6 +30,14 @@ void copyState(state_t *source, state_t *dest)
     }
 }
 
+/**
+ * @brief Funzione che calcola l'indice del semaforo del device nell'array
+ * 
+ * @param line 
+ * @param device 
+ * @param read 
+ * @return int 
+ */
 int getDeviceSemaphoreIndex(int line, int device, int read)
 {
     return ((line - 3) * 8) + (line == 7 ? (read * 8) + device : device);
@@ -38,24 +45,41 @@ int getDeviceSemaphoreIndex(int line, int device, int read)
 
 void createProcess(state_t *statep)
 {
-    pcb_PTR new_p = allocPcb(); //alloco nuovo processo
+    /*Alloca un nuovo processo*/
+    pcb_PTR new_p = allocPcb();
+    /*Se non e' stato possibile alloare*/
     if (new_p == NULL)
     {
-        statep->reg_v0 = NOPROC;  //non e' stato possibile allocare il processo
-        LDST(statep);   //ricarichiamo la CPU
+        /*Ritorna errore*/
+        statep->reg_v0 = NOPROC;
+        /*Ricarica la CPU*/
+        LDST(statep);
     }
+    /*Se e' stato possibile allocare*/
     else
     {
-        insertProcQ(&ready_q, new_p);   //inseriamo nella ready queue
-        p_count++;   //incrementiamo i processi ready
-        insertChild(curr_proc, new_p);    //inseriamo come figlio di curr
+        /*Inserisce il processo nella ready queue*/
+        insertProcQ(&ready_q, new_p);
+        /*Incrementa i processi totali*/
+        p_count++;
+        /*Inserisce il processo come figlio di current*/
+        insertChild(curr_proc, new_p);
+        /*Copia support struct*/
         new_p->p_supportStruct = (support_t*) statep->reg_a2;
+        /*Copia state*/
         copyState((state_t*) statep->reg_a1, &(new_p->p_s));
+        /*Ritorna successo*/
         statep->reg_v0 = OK;
-        LDST(statep);   //ricarichiamo la CPU
+        /*Ricarica CPU*/
+        LDST(statep);
     }  
 }
 
+/**
+ * @brief Funzione di supporto per terinare la progenie di current
+ * 
+ * @param p 
+ */
 void terminateRec(pcb_PTR p)
 {
     while(!emptyChild(p))   //eliminiamo ricorsivamente tutta la progenie di current proc

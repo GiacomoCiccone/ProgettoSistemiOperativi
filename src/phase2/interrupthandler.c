@@ -1,5 +1,4 @@
 #include "interrupthandler.h"
-#include "helper.h"
 #include "../pandos_const.h"
 #include "../pandos_types.h"
 #include "pcb.h"
@@ -68,7 +67,7 @@ void interruptHandler(){
         PANIC();
     case 1: //PLT Interrupt
         setPLT(__INT32_MAX__);        //ack interrupt
-        curr_proc->p_s = *(iep_s); //copio stato processore in p_s
+        copyState(iep_s, &(curr_proc->p_s));
         insertProcQ(&ready_q, curr_proc);
         scheduler();               //chiamo lo scheduler
         break;
