@@ -49,11 +49,15 @@ int main()
     /*Inizializzazione processo*/
     pcb_PTR proc = allocPcb();
     p_count++;
-
-    /*Spiegare ogni riga!!*/
+    
+    /*inizializzazione stato del primo processo*/
     state_t p1state;
     STST(&p1state);
+    
+    /*inizializzazione stack pointer a ramtop*/
     RAMTOP(p1state.reg_sp);
+
+    /*inizializzazione pc all'indirizzo della funzione test*/
     p1state.pc_epc = (memaddr) test;
     p1state.reg_t9 = (memaddr) test;
 

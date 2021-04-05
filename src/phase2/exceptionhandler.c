@@ -24,12 +24,15 @@ void passUpOrDie(unsigned int cause, state_t *iep_s)
         /*Cause differenzia tra TLB refill e Program Trap*/
         int context_i = cause;
 
-        /*Bisogna commentare queste righe!!*/
-
+        /*copia lo stato del processo che ha causato l'eccezione nella support struct*/
         copyState(iep_s, &(curr_proc->p_supportStruct->sup_exceptState[context_i]));
+
+        /*salva lo stack pointer, status e pc del context corretto*/
         unsigned int stackPtr = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_stackPtr;
         unsigned int status = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_status;
         unsigned int pc = curr_proc->p_supportStruct->sup_exceptContext[context_i].c_pc;
+
+        /*carica il context per gestire l'eccezione*/
         LDCXT(stackPtr, status, pc);
     }
 }
@@ -45,20 +48,16 @@ void exceptionHandler()
 
     switch(exc_code)
     {
-            /*Interrupt*/
-        case 0:
+        case 0:                     //interrupt
             interruptHandler();
             break;
-            /*TLB*/
-        case 1 ... 3:  
+        case 1 ... 3:               //TLB
             passUpOrDie(PGFAULTEXCEPT, iep_s);
             break;
-            /*Trap*/
-        case 4 ... 7: case 9 ... 12:
+        case 4 ... 7: case 9 ... 12: //trap
             passUpOrDie(GENERALEXCEPT, iep_s);
             break;
-            /*Syscall*/
-        case 8:
+        case 8:                     //syscall
             /*Il controllo passa all'syscall handler*/
             syscallHandler(iep_s->reg_a0, iep_s);
             break;

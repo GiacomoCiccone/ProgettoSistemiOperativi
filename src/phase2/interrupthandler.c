@@ -58,8 +58,8 @@ int getHighestPriorityIntDevice(memaddr* int_line_addr)
 void interruptHandler(){
     state_t* iep_s = (state_t*) BIOSDATAPAGE;    //preleviamo l'exception state
     cpu_t start, end;
-    int int_map = ((iep_s->cause & 0xFF00) >> 8);
-    int int_line = getHighestPriorityIntLine(int_map);
+    int int_map = ((iep_s->cause & 0xFF00) >> 8);       //calcolo l'indirizzo dell'interrupt map
+    int int_line = getHighestPriorityIntLine(int_map);  //trovo l'interrupt con priorità più alta
     int read;
     STCK(start);
     switch(int_line){
@@ -68,7 +68,7 @@ void interruptHandler(){
     case 1: //PLT Interrupt
         setPLT(__INT32_MAX__);        //ack interrupt
         copyState(iep_s, &(curr_proc->p_s));
-        insertProcQ(&ready_q, curr_proc);
+        insertProcQ(&ready_q, curr_proc);  //reinserisce il processo nella ready queue
         scheduler();               //chiamo lo scheduler
         break;
     case 2: //System wide interval timer
@@ -84,22 +84,25 @@ void interruptHandler(){
                 sb_count--;
             }
         }
+        
         dev_sem[SEM_NUM-1] = 0;
+
+        /*torna al processo in esecuzione se esiste, oppure rientro nello scheduler*/
         if(curr_proc != NULL)
-        {
             LDST(iep_s);
-        }
         else
-        {
             scheduler();
-        }
+
         break;
     case 3 ... 7: ;//interrupt lines
         memaddr* interrupting_line_addr = getInterruptLineAddr((int)int_line); //calcola l'indirizzo dell'interrupt line
         int dev_n = getHighestPriorityIntDevice(interrupting_line_addr);  //controlla il device con priorità maggiore che ha causato l'interrupt
         devreg_t* d_r = (devreg_t*) getDevRegAddr(int_line, dev_n);       //calcola il device register
         int status_code;
-        if(int_line == 7)
+
+        /*l'interrupt line 7 è riservata ai terminali, che hanno registri
+          diversi dagli altri device*/
+        if(int_line == 7)   
         {
             termreg_t* t_r = (termreg_t*) d_r;
             read = t_r->transm_status == READY;
@@ -114,7 +117,7 @@ void interruptHandler(){
                 t_r->recv_command = ACK;
             }
         }
-        else
+        else //le altre interrupt line hanno gli stessi registri
         {
             status_code = d_r->dtp.status;  //salva lo status code
             d_r->dtp.command = ACK;          //invio comando ack per riconoscere l'interrupt
@@ -128,16 +131,15 @@ void interruptHandler(){
             pcb_PTR blocked_proc = removeBlocked(&(dev_sem[sem_i]));
             if (blocked_proc != NULL)
             {
-                blocked_proc->p_time += (end - start);
+                blocked_proc->p_time += (end - start);  //aggiorna tempo processo bloccato
                 blocked_proc->p_s.reg_v0 = status_code; //inserisce status code in v0
                 insertProcQ(&ready_q, blocked_proc);     //processo passa da blocked a ready
                 sb_count--;
             }
         }
+        /*torna al processo in esecuzione se esiste, oppure rientra nello scheduler*/
         if(curr_proc != NULL)
-        {
-            LDST(iep_s);                      //torno al processo che era in esecuzione
-        }   
+            LDST(iep_s);
         else
             scheduler();
         break;
