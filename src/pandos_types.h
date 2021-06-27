@@ -32,6 +32,12 @@ typedef struct support_t {
     pageEntry_t sup_pageTable[MAXPAGES];
 } support_t;
 
+typedef struct swapPool_t {
+	pageEntry_t* sw_pageEntry;
+	unsigned int sw_asid;
+    int sw_pageNum;
+} swapPool_t;
+
 /* process table entry type */
 typedef struct pcb_t {
     /* process queue fields */
