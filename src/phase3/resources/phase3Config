@@ -1,9 +1,9 @@
 {
     "boot": {
-        "core-file": "kernel.core.umps",
+        "core-file": "/home/agente_drif/Scrivania/Personale/progettoSO/src/phase3/out/kernel.core.umps",
         "load-core-file": true
     },
-    "bootstrap-rom": "/usr/local/share/umps3/coreboot.rom.umps",
+    "bootstrap-rom": "/usr/share/umps3/coreboot.rom.umps",
     "clock-rate": 1,
     "devices": {
         "flash0": {
@@ -103,12 +103,12 @@
             "file": "term7.umps"
         }
     },
-    "execution-rom": "/usr/local/share/umps3/exec.rom.umps",
+    "execution-rom": "/usr/share/umps3/exec.rom.umps",
     "num-processors": 1,
     "num-ram-frames": 128,
     "symbol-table": {
         "asid": 64,
-        "file": "kernel.stab.umps"
+        "file": "/home/agente_drif/Scrivania/Personale/progettoSO/src/phase3/out/kernel.stab.umps"
     },
     "tlb-floor-address": "0x80000000",
     "tlb-size": 16
