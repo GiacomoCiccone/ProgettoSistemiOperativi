@@ -3,6 +3,8 @@
 
 #include "../pandos_types.h"
 
+#define SEM_NUM 49
+
 void exceptHandler();
 void sysHandler(support_t* currSupport);
 void terminate();
