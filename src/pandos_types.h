@@ -13,6 +13,10 @@
 typedef signed int   cpu_t;
 typedef unsigned int memaddr;
 
+typedef struct pteEntry_t {
+    unsigned int pte_entryHI;
+    unsigned int pte_entryLO;
+} pteEntry_t;
 
 typedef struct context_t {
     unsigned int c_stackPtr;
@@ -20,23 +24,13 @@ typedef struct context_t {
     unsigned int c_pc;
 } context_t;
 
-typedef struct pageEntry_t {
-    unsigned int pe_entryHI;
-    unsigned int pe_entryLO;
-} pageEntry_t;
 
 typedef struct support_t {
     int       sup_asid;             /* process ID					*/
     state_t   sup_exceptState[2];   /* old state exceptions			*/
     context_t sup_exceptContext[2]; /* new contexts for passing up	*/
-    pageEntry_t sup_pageTable[MAXPAGES];
+    pteEntry_t sup_privatePgTbl[USERPGTBLSIZE]; /* user page table*/
 } support_t;
-
-typedef struct swapPool_t {
-	pageEntry_t* sw_pageEntry;
-	unsigned int sw_asid;
-    int sw_pageNum;
-} swapPool_t;
 
 /* process table entry type */
 typedef struct pcb_t {
@@ -59,5 +53,11 @@ typedef struct pcb_t {
     support_t *p_supportStruct;
 
 } pcb_t, *pcb_PTR;
+
+typedef struct swap_t {
+    int         sw_asid;   /* ASID number			*/
+    int         sw_pageNo; /* page's virt page no.	*/
+    pteEntry_t *sw_pte;    /* page's PTE entry.	*/
+} swap_t;
 
 #endif

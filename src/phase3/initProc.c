@@ -1,13 +1,16 @@
-#include "../phase1/asl.h"
-#include "../phase1/pcb.h"
 #include "initProc.h"
 #include "sysSupport.h"
 #include "vmSupport.h"
 #include "../pandos_const.h"
 #include "../pandos_types.h"
+#include "umps3/umps/libumps.h"
 
 /*pool di support structures static, usano ASID come indice*/
 static support_t supPool[UPROCMAX+1];
+int mainSem;
+int devSem[49];
+
+extern void exceptionHandler();
 
 
 void createUProc(int id)
@@ -27,7 +30,7 @@ void createUProc(int id)
     supPool[id].sup_asid = id;
 
     /*setup general exception*/
-    supPool[id].sup_exceptContext[GENERALEXCEPT].c_pc = (memaddr) exceptHandler;
+    supPool[id].sup_exceptContext[GENERALEXCEPT].c_pc = (memaddr) exceptionHandler;
     supPool[id].sup_exceptContext[GENERALEXCEPT].c_status = ALLOFF | IMON | 0x1 | TEBITON;
     supPool[id].sup_exceptContext[GENERALEXCEPT].c_stackPtr = (int) topStack;
 
@@ -56,12 +59,11 @@ void createUProc(int id)
     }
     
 
-
 }
 
 void test()
 {
-    /*inizializza gli swap semaphores*/
+    /*inizializza gli swap semaphores e la pool*/
     initTLB();
 
     /*Inizializza i semafori dei device*/
