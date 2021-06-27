@@ -7,3 +7,4 @@ out/*
 *.o
 *.umps
 *.kernel
+src/phase3/resources/testers/testers.tar.gz

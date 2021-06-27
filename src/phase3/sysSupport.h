@@ -6,7 +6,7 @@
 void exceptHandler();
 void sysHandler(support_t* currSupport);
 void terminate();
-void get_TOD(support_t* currSupport);
+void getTOD(support_t* currSupport);
 void writeToPrinter(support_t* currSupport);
 void writeToTerm(support_t* currSupport);
 void readFromTerm();
