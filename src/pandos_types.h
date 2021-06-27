@@ -20,10 +20,16 @@ typedef struct context_t {
     unsigned int c_pc;
 } context_t;
 
+typedef struct pageEntry_t {
+    unsigned int pe_entryHI;
+    unsigned int pe_entryLO;
+} pageEntry_t;
+
 typedef struct support_t {
     int       sup_asid;             /* process ID					*/
     state_t   sup_exceptState[2];   /* old state exceptions			*/
     context_t sup_exceptContext[2]; /* new contexts for passing up	*/
+    pageEntry_t sup_pageTable[MAXPAGES];
 } support_t;
 
 /* process table entry type */
