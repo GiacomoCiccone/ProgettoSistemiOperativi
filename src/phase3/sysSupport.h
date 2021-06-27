@@ -1,7 +1,7 @@
 #ifndef SYS_SUPPORT_H
 #define SYS_SUPPORT_H
 
-#include "resources/pandos_types.h"
+#include "../pandos_types.h"
 
 void exceptHandler();
 void sysHandler(support_t* currSupport);
