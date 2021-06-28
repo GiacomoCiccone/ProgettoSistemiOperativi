@@ -4,7 +4,7 @@
 #include "../pandos_const.h"
 #include "umps3/umps/libumps.h"
 
-extern int dev_sem[SEM_NUM];
+extern int devSem[SEM_NUM];
 
 void exceptHandler()
 {
@@ -78,7 +78,7 @@ void writeToPrinter(support_t* currSupport)
         kill(NULL); //trap
 
     /*prende la mutua esclusione*/
-    SYSCALL(PASSEREN, (int) &dev_sem[printer_sem], 0, 0);
+    SYSCALL(PASSEREN, (int) &devSem[printer_sem], 0, 0);
 
     int status;
 
@@ -112,7 +112,7 @@ void writeToPrinter(support_t* currSupport)
         }
     }
     /*rilascia mutua esclusione*/
-    SYSCALL(VERHOGEN, (int)&dev_sem[printer_sem], 0, 0);
+    SYSCALL(VERHOGEN, (int)&devSem[printer_sem], 0, 0);
     /*ritorna il numero di caratteri inviati*/
     currSupport->sup_exceptState[GENERALEXCEPT].reg_v0 = i;
 }
@@ -135,7 +135,7 @@ void writeToTerm(support_t* currSupport)
         kill(NULL); //trap
 
     /*prende la mutua esclusione*/
-    SYSCALL(PASSEREN, (int) &dev_sem[printer_sem], 0, 0);
+    SYSCALL(PASSEREN, (int) &devSem[printer_sem], 0, 0);
 
     int status;
 
@@ -168,7 +168,7 @@ void writeToTerm(support_t* currSupport)
         }
     }
     /*rilascia mutua esclusione*/
-    SYSCALL(VERHOGEN, (int)&dev_sem[term_num], 0, 0);
+    SYSCALL(VERHOGEN, (int)&devSem[term_num], 0, 0);
     /*ritorna il numero di caratteri inviati*/
     currSupport->sup_exceptState[GENERALEXCEPT].reg_v0 = i;
 }
@@ -191,7 +191,7 @@ void readFromTerm(support_t* currSupport)
     }
 
     /*prende mutua esclusione*/
-    SYSCALL(PASSEREN, (int) &dev_sem[term_sem + DEVPERINT], 0, 0);
+    SYSCALL(PASSEREN, (int) &devSem[term_sem + DEVPERINT], 0, 0);
 
     int i = 0;
     
@@ -227,6 +227,6 @@ void readFromTerm(support_t* currSupport)
             break;
         }
     }
-    SYSCALL(PASSEREN, (int) &dev_sem[term_sem + DEVPERINT], 0, 0);
+    SYSCALL(PASSEREN, (int) &devSem[term_sem + DEVPERINT], 0, 0);
     currSupport->sup_exceptState[GENERALEXCEPT].reg_v0 = i;
 }
