@@ -5,7 +5,7 @@
 #include "umps3/umps/libumps.h"
 
 extern int devSem[SEM_NUM];
-
+int getDeviceSemaphoreIndex(int line, int device, int read);
 void exceptHandler()
 {
     /*prende il current process supp struct*/
@@ -69,7 +69,7 @@ void writeToPrinter(support_t* currSupport)
     /*prende il numero della stampante*/
     int printer_num = currSupport->sup_asid - 1;
     /*prende il semaforo della stampante*/
-    int printer_sem = ((PRNTINT-DISKINT)*DEVPERINT)+printer_num;
+    int printer_sem = getDeviceSemaphoreIndex(printer_num, PRNTINT, 0);
 
     devregarea_t* dev_regs = (devregarea_t*) RAMBASEADDR;
 
@@ -126,7 +126,7 @@ void writeToTerm(support_t* currSupport)
     /*prende il numero della stampante*/
     int term_num = currSupport->sup_asid - 1;
     /*prende il semaforo della stampante*/
-    int printer_sem = ((PRNTINT-DISKINT)*DEVPERINT) + term_num;
+    int printer_sem = getDeviceSemaphoreIndex(term_num, TERMINT, 0);
 
     devregarea_t* dev_regs = (devregarea_t*) RAMBASEADDR;
 
@@ -180,7 +180,7 @@ void readFromTerm(support_t* currSupport)
     /*prende il numero del terminale*/
     int term_num = currSupport->sup_asid - 1;
     /*prende il semaforo del terminale*/
-    int term_sem = ((PRNTINT-DISKINT)*DEVPERINT) + term_num;
+    int term_sem = getDeviceSemaphoreIndex(term_num, TERMINT, 1);
 
     devregarea_t* dev_regs = (devregarea_t*) RAMBASEADDR;
 
