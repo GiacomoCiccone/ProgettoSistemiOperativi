@@ -8,7 +8,7 @@ void kill(int *sem);
 /*inizializza la swap pool mettendo a -1 tutti gli ASID*/
 void initTLB();
 
-void uTLB_RefillHandler();
+void TLB_RefillHandler();
 
 void pager();
 

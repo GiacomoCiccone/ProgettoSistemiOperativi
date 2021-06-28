@@ -5,7 +5,8 @@
 #include "umps3/umps/libumps.h"
 
 extern int devSem[SEM_NUM];
-int getDeviceSemaphoreIndex(int line, int device, int read);
+extern int getDeviceSemaphoreIndex(int line, int device, int read);
+
 void exceptHandler()
 {
     /*prende il current process supp struct*/
@@ -126,7 +127,7 @@ void writeToTerm(support_t* currSupport)
     /*prende il numero della stampante*/
     int term_num = currSupport->sup_asid - 1;
     /*prende il semaforo della stampante*/
-    int printer_sem = getDeviceSemaphoreIndex(term_num, TERMINT, 0);
+    int term_sem = getDeviceSemaphoreIndex(term_num, TERMINT, 0);
 
     devregarea_t* dev_regs = (devregarea_t*) RAMBASEADDR;
 
@@ -135,7 +136,7 @@ void writeToTerm(support_t* currSupport)
         kill(NULL); //trap
 
     /*prende la mutua esclusione*/
-    SYSCALL(PASSEREN, (int) &devSem[printer_sem], 0, 0);
+    SYSCALL(PASSEREN, (int) &devSem[term_sem], 0, 0);
 
     int status;
 
@@ -149,7 +150,7 @@ void writeToTerm(support_t* currSupport)
         setSTATUS(currStatus & IECON);
 
         dev_regs->devreg[term_num]->term.transm_command = *string << BYTELENGTH | TRANSMITCHAR;
-        status = SYSCALL(IOWAIT, PRNTINT, term_num, 0);
+        status = SYSCALL(IOWAIT, TERMINT, term_num, 0);
 
         /*riaccende gli interrupt*/
         setSTATUS(currStatus & 0x1);
@@ -168,7 +169,7 @@ void writeToTerm(support_t* currSupport)
         }
     }
     /*rilascia mutua esclusione*/
-    SYSCALL(VERHOGEN, (int)&devSem[term_num], 0, 0);
+    SYSCALL(VERHOGEN, (int)&devSem[term_sem], 0, 0);
     /*ritorna il numero di caratteri inviati*/
     currSupport->sup_exceptState[GENERALEXCEPT].reg_v0 = i;
 }
@@ -191,7 +192,7 @@ void readFromTerm(support_t* currSupport)
     }
 
     /*prende mutua esclusione*/
-    SYSCALL(PASSEREN, (int) &devSem[term_sem + DEVPERINT], 0, 0);
+    SYSCALL(PASSEREN, (int) &devSem[term_sem], 0, 0);
 
     int i = 0;
     
@@ -227,6 +228,6 @@ void readFromTerm(support_t* currSupport)
             break;
         }
     }
-    SYSCALL(PASSEREN, (int) &devSem[term_sem + DEVPERINT], 0, 0);
+    SYSCALL(PASSEREN, (int) &devSem[term_sem], 0, 0);
     currSupport->sup_exceptState[GENERALEXCEPT].reg_v0 = i;
 }

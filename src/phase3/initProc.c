@@ -5,7 +5,7 @@
 #include "../pandos_types.h"
 #include "umps3/umps/libumps.h"
 
-/*pool di support structures static, usano ASID come indice*/
+/*pool di support struct, usano ASID come indice*/
 static support_t supPool[UPROCMAX+1];
 int mainSem;
 int devSem[SEM_NUM];
@@ -24,7 +24,7 @@ void createUProc(int id)
     newState.reg_sp = (int) 0xC0000000;
     newState.status = ALLOFF | IMON | 0x1 | TEBITON | USERPON;
 
-    /*setup della support struc*/
+    /*setup della support struct*/
     supPool[id].sup_asid = id;
 
     /*setup general exception*/
@@ -43,12 +43,11 @@ void createUProc(int id)
         supPool[id].sup_privatePgTbl[i].pte_entryHI = ALLOFF | ((0x80000 + i) << VPNSHIFT) | (id << ASIDSHIFT);
         supPool[id].sup_privatePgTbl[i].pte_entryLO = ALLOFF | 0x00000400;
     }
-    
+    /*stack*/
     supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = ALLOFF | (0xBFFFF << VPNSHIFT) | (id << ASIDSHIFT);
 
     /*chiama SYS1*/
-
-    int status = SYSCALL(CREATEPROCESS, (int) &newState, (int)&(supPool[id]), 0);
+    int status = SYSCALL(CREATEPROCESS, (int) &newState, (int) &(supPool[id]), 0);
 
     /*se qualcosa e' andato storto uccide il processo*/
     if (status != OK)
@@ -65,7 +64,7 @@ void test()
     initTLB();
 
     /*Inizializza i semafori dei device*/
-    for (int i = 0; i < 48; i++)
+    for (int i = 0; i < SEM_NUM; i++)
     {
         devSem[i] = 1;
     }

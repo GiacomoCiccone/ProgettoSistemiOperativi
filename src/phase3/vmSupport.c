@@ -102,7 +102,7 @@ void uTLB_RefillHandler(){
     state_t* currproc_s = (state_t*) BIOSDATAPAGE; 
 
     /*calcola il numero di pagina*/
-    unsigned int pg = currproc_s->entry_hi >> VPNSHIFT;
+    unsigned int pg = ((currproc_s->entry_hi & 0x3FFFF000) >> VPNSHIFT) % MAXPAGES;
     
     /*pende la page entry*/
     pteEntry_t pe = curr_proc->p_supportStruct->sup_privatePgTbl[pg];
@@ -145,7 +145,7 @@ void pager()
     int id = currSup->sup_asid;
 
     /*se la causa e' una TLB-modification si uccide*/
-    if (cause != 2 && cause != 2)
+    if (cause != 2 && cause != 3)
     {
         kill(NULL);
     }
@@ -154,7 +154,7 @@ void pager()
     SYSCALL(PASSEREN, (int) &swapSem, 0, 0);
 
     /*calcola il page number*/
-    int pgNum = ((currSup->sup_exceptState[PGFAULTEXCEPT].entry_hi)) >> VPNSHIFT;
+    int pgNum = ((currSup->sup_exceptState[PGFAULTEXCEPT].entry_hi) & 0x3FFFF000) >> VPNSHIFT;
 
     /*sceglie la pagina vittima*/
     int pgVictNum = replace();
@@ -170,14 +170,14 @@ void pager()
         /*spegne gli interrupt*/
         setSTATUS(currStatus & IECON);
         /*spegne il V bit*/
-        swapPool[pgVictNum].sw_pte->pte_entryLO &= 0xFFFFFDFF;
+        swapPool[pgVictNum].sw_pte->pte_entryLO = swapPool[pgVictNum].sw_pte->pte_entryLO & 0xFFFFFDFF;
         /*aggiorna il TLB*/
         updateTLB(pgVictNum);
         /*riaccende gli interrupt*/
         setSTATUS(currStatus & 0x1);
 
         /*estrae la posizione nella pool*/
-        int poolID = swapPool[pgVictNum].sw_pageNo;
+        int poolID = swapPool[pgVictNum].sw_pageNo % MAXPAGES;
         /*estrae ASID*/
         int pgVictmID = swapPool[pgVictNum].sw_asid;
 
@@ -188,16 +188,18 @@ void pager()
             kill(&swapSem);
         }   
     }
+
+    int poolID = pgNum % MAXPAGES;
     
     /*legge l'entry dal backing store*/
-    if(flashCommand(FLASH_READ, pgVictAddr, pgNum, id - 1) != 1)
+    if(flashCommand(FLASH_READ, pgVictAddr, poolID, id - 1) != 1)
     {   
         /*se qualcosa va storto si uccide*/
         kill(&swapSem);
     }
 
     /*aggiorna la page table*/
-    pteEntry_t *entry = &(currSup->sup_privatePgTbl[pgNum]);
+    pteEntry_t *entry = &(currSup->sup_privatePgTbl[poolID]);
     swapPool[pgVictNum].sw_asid = id;
     swapPool[pgVictNum].sw_pageNo = pgNum;
     swapPool[pgVictNum].sw_pte = entry;
