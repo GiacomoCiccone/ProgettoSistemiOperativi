@@ -8,7 +8,7 @@
 /*pool di support structures static, usano ASID come indice*/
 static support_t supPool[UPROCMAX+1];
 int mainSem;
-int devSem[49];
+int devSem[SEM_NUM];
 
 
 void createUProc(int id)

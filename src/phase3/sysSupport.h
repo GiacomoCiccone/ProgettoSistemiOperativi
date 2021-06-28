@@ -7,10 +7,16 @@
 
 void exceptHandler();
 void sysHandler(support_t* currSupport);
+
+/*System call che fa da wrapper per la SYS2*/
 void terminate();
+
+/*@brief System call che ritorna il tempo passato dall'accensione in microsecondi
+ *@param currSupport*/
 void getTOD(support_t* currSupport);
+
 void writeToPrinter(support_t* currSupport);
 void writeToTerm(support_t* currSupport);
-void readFromTerm();
+void readFromTerm(support_t* currSupport);
 
 #endif
