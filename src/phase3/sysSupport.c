@@ -6,6 +6,7 @@
 
 extern int devSem[SEM_NUM];
 extern int getDeviceSemaphoreIndex(int line, int device, int read);
+extern memaddr* getDevRegAddr(int int_line, int dev_n);
 
 void exceptHandler()
 {
@@ -72,7 +73,7 @@ void writeToPrinter(support_t* currSupport)
     /*prende il semaforo della stampante*/
     int printer_sem = getDeviceSemaphoreIndex(printer_num, PRNTINT, 0);
 
-    devregarea_t* dev_regs = (devregarea_t*) RAMBASEADDR;
+    devreg_t* dev_regs = (devreg_t*) getDevRegAddr(PRNTINT, printer_num);
 
     /*se l'indirizzo e' fuori dalla memoria virtuale o la lunghezza e' zero trap*/
     if((int)string < KUSEG || length <= 0 || length > MAXSTRLENG)
@@ -82,8 +83,8 @@ void writeToPrinter(support_t* currSupport)
     SYSCALL(PASSEREN, (int) &devSem[printer_sem], 0, 0);
 
     int status;
-
     int i = 0;
+    
     /*manda i caratteri*/
     while(i<length)
     {
@@ -92,8 +93,8 @@ void writeToPrinter(support_t* currSupport)
         /*spegne gli interrupt*/
         setSTATUS(currStatus & IECON);
 
-        dev_regs->devreg[printer_sem]->dtp.data0 = *string;
-        dev_regs->devreg[printer_sem]->dtp.command = TRANSMITCHAR;
+        dev_regs->dtp.data0 = *string;
+        dev_regs->dtp.command = TRANSMITCHAR;
         status = SYSCALL(IOWAIT, PRNTINT, printer_num, 0);
 
         /*riaccende gli interrupt*/
@@ -129,7 +130,7 @@ void writeToTerm(support_t* currSupport)
     /*prende il semaforo della stampante*/
     int term_sem = getDeviceSemaphoreIndex(term_num, TERMINT, 0);
 
-    devregarea_t* dev_regs = (devregarea_t*) RAMBASEADDR;
+    devreg_t* dev_regs = (devreg_t*) getDevRegAddr(TERMINT, term_num);
 
     /*se l'indirizzo e' fuori dalla memoria virtuale o la lunghezza e' zero trap*/
     if((int)string < KUSEG || length <= 0 || length > MAXSTRLENG)
@@ -149,7 +150,7 @@ void writeToTerm(support_t* currSupport)
         /*spegne gli interrupt*/
         setSTATUS(currStatus & IECON);
 
-        dev_regs->devreg[term_num]->term.transm_command = *string << BYTELENGTH | TRANSMITCHAR;
+        dev_regs->term.transm_command = *string << BYTELENGTH | TRANSMITCHAR;
         status = SYSCALL(IOWAIT, TERMINT, term_num, 0);
 
         /*riaccende gli interrupt*/
@@ -183,7 +184,7 @@ void readFromTerm(support_t* currSupport)
     /*prende il semaforo del terminale*/
     int term_sem = getDeviceSemaphoreIndex(term_num, TERMINT, 1);
 
-    devregarea_t* dev_regs = (devregarea_t*) RAMBASEADDR;
+    devreg_t* dev_regs = (devreg_t*) getDevRegAddr(TERMINT, term_num);
 
     /*se l'indirizzo e' fuori dalla memoria virtuale si uccide*/
     if ((int)string < KUSEG)
@@ -203,7 +204,7 @@ void readFromTerm(support_t* currSupport)
         /*spegne gli interrupt*/
         setSTATUS(currStatus & IECON);
 
-        dev_regs->devreg[term_sem]->term.recv_command = TRANSMITCHAR;
+        dev_regs->term.recv_command = TRANSMITCHAR;
         int status = SYSCALL(IOWAIT, TERMINT, term_num, 1);
         
         /*riaccende gli interrupt*/
@@ -211,7 +212,6 @@ void readFromTerm(support_t* currSupport)
         if ((status & 0xFF) == OKCHARTRANS)
         {
             i++;
-            string++;
             *string = status >> BYTELENGTH;
             string++;
             /*se e' una new line*/

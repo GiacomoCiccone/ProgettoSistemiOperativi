@@ -146,7 +146,7 @@ void pager()
     int id = currSup->sup_asid;
 
     /*se la causa e' una TLB-modification si uccide*/
-    if (cause != 2 && cause != 3)
+    if (cause == 1)
     {
         kill(NULL);
     }
@@ -181,14 +181,15 @@ void pager()
         int poolID = swapPool[pgVictNum].sw_pageNo % MAXPAGES;
         /*estrae ASID*/
         int pgVictmID = swapPool[pgVictNum].sw_asid;
-
-        /*scrive nel backing store*/
-        if (flashCommand(FLASH_WRITE, pgVictAddr, poolID, pgVictmID - 1) != 1)
+        if (swapPool[pgVictNum].sw_pte->pte_entryLO & DIRTYON)
         {
-            /*se qualcosa va storto si uccide*/
-            SYSCALL(VERHOGEN, (int) &swapSem, 0, 0);
-            kill(&swapSem);
-        }   
+            /*scrive nel backing store*/
+            if (flashCommand(FLASH_WRITE, pgVictAddr, poolID, pgVictmID - 1) != 1)
+            {
+                /*se qualcosa va storto si uccide*/
+                kill(&swapSem);
+            }   
+        }
     }
 
     int poolID = pgNum % MAXPAGES;
@@ -197,7 +198,6 @@ void pager()
     if(flashCommand(FLASH_READ, pgVictAddr, poolID, id - 1) != 1)
     {   
         /*se qualcosa va storto si uccide*/
-        SYSCALL(VERHOGEN, (int) &swapSem, 0, 0);
         kill(&swapSem);
     }
 
@@ -212,7 +212,7 @@ void pager()
     /*spegne gli interrupt*/
     setSTATUS(currStatus & IECON);
     /*accende il V bit e il D bit*/
-    swapPool[pgVictNum].sw_pte->pte_entryLO = pgVictAddr | 0x00000200 | 0x00000400;
+    swapPool[pgVictNum].sw_pte->pte_entryLO = pgVictAddr | VALIDON | DIRTYON;
     /*aggiorna il TLB*/
     updateTLB(pgVictNum);
     /*riaccende gli interrupt*/
