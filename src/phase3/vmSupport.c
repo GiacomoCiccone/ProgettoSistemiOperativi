@@ -6,6 +6,7 @@
 
 extern int mainSem;
 extern pcb_t* curr_proc;
+extern int getDevRegAddr(int int_line, int dev_n);
 int swapSem;
 swap_t swapPool[UPROCMAX * 2];
 
@@ -56,17 +57,17 @@ void updateTLB(int pgVictNum)
 
 int flashCommand(int com, int block, int poolID, int flashDevNum)
 {
-    devregarea_t *devReg = (devregarea_t*) RAMBASEADDR;
+    //devregarea_t *devReg = (devregarea_t*) RAMBASEADDR;
     /*deve avvenire atomicamente per assicurarsi che gli interrupt avvengano dopo SYS5*/
     unsigned int currStatus = getSTATUS();
     /*spegne gli interrupt*/
     setSTATUS(currStatus & IECON);
 
+    devreg_t* flash = (devreg_t*) getDevRegAddr(FLASHINT, flashDevNum);
     /*scrive DATA0 con il blocco da leggere o scrivere*/
-    devReg->devreg[flashDevNum + 8]->dtp.data0 = block;
+    flash->dtp.data0 = block;
     /*scrive COMMAND con l'operazione da effettuare*/
-    devReg->devreg[flashDevNum + 8]->dtp.command = (poolID << 8) | com;
-
+    flash->dtp.command = (poolID << 8) | com;
     int state = SYSCALL(IOWAIT, FLASHINT, flashDevNum, 0);
     /*riaccende gli interrupt*/
     setSTATUS(currStatus & 0x1);
@@ -185,6 +186,7 @@ void pager()
         if (flashCommand(FLASH_WRITE, pgVictAddr, poolID, pgVictmID - 1) != 1)
         {
             /*se qualcosa va storto si uccide*/
+            SYSCALL(VERHOGEN, (int) &swapSem, 0, 0);
             kill(&swapSem);
         }   
     }
@@ -195,6 +197,7 @@ void pager()
     if(flashCommand(FLASH_READ, pgVictAddr, poolID, id - 1) != 1)
     {   
         /*se qualcosa va storto si uccide*/
+        SYSCALL(VERHOGEN, (int) &swapSem, 0, 0);
         kill(&swapSem);
     }
 
