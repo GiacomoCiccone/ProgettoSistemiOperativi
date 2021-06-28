@@ -1,4 +1,6 @@
 #include "sysSupport.h"
+#include "vmSupport.h"
+#include "umps3/umps/libumps.h"
 #include "../pandos_types.h"
 #include "../pandos_const.h"
 
@@ -80,7 +82,6 @@ void writeToPrinter(support_t* currSupport)
 
     int status;
 
-    int char_n = 0;
     int i = 0;
     /*manda i caratteri*/
     while(i<length){
@@ -88,7 +89,7 @@ void writeToPrinter(support_t* currSupport)
         dev_regs->devreg[printer_sem]->dtp.command = TRANSMITCHAR;
         status = SYSCALL(IOWAIT, PRNTINT, printer_num, 0);
         /*se tutto ok continua*/
-        if(status & 0xFF == OKCHARTRANS)
+        if((status & 0xFF) == OKCHARTRANS)
         {
             i++;
             string++;
@@ -129,7 +130,6 @@ void writeToTerm(support_t* currSupport)
 
     int status;
 
-    int char_n = 0;
     int i = 0;
     /*manda i caratteri*/
     while(i<length)
@@ -137,7 +137,7 @@ void writeToTerm(support_t* currSupport)
         dev_regs->devreg[term_num]->term.transm_command = *string << BYTELENGTH | TRANSMITCHAR;
         status = SYSCALL(IOWAIT, PRNTINT, term_num, 0);
         /*se tutto ok continua*/
-        if(status & 0xFF == OKCHARTRANS)
+        if((status & 0xFF) == OKCHARTRANS)
         {
             i++;
             string++;
@@ -182,7 +182,7 @@ void readFromTerm(support_t* currSupport)
     {
         dev_regs->devreg[term_sem]->term.recv_command = TRANSMITCHAR;
         int status = SYSCALL(IOWAIT, TERMINT, term_num, 1);
-        if (status & 0xFF == OKCHARTRANS)
+        if ((status & 0xFF) == OKCHARTRANS)
         {
             i++;
             string++;
