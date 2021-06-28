@@ -1,6 +1,4 @@
 #include "sysSupport.h"
-#include "vmSupport.h"
-#include "umps3/umps/libumps.h"
 #include "../pandos_types.h"
 #include "../pandos_const.h"
 
@@ -82,14 +80,24 @@ void writeToPrinter(support_t* currSupport)
 
     int status;
 
+    int char_n = 0;
     int i = 0;
     /*manda i caratteri*/
-    while(i<length){
+    while(i<length)
+    {
+        /*deve avvenire atomicamente*/
+        unsigned int currStatus = getSTATUS();
+        /*spegne gli interrupt*/
+        setSTATUS(currStatus & IECON);
+
         dev_regs->devreg[printer_sem]->dtp.data0 = *string;
         dev_regs->devreg[printer_sem]->dtp.command = TRANSMITCHAR;
         status = SYSCALL(IOWAIT, PRNTINT, printer_num, 0);
+
+        /*riaccende gli interrupt*/
+        setSTATUS(currStatus & 0x1);
         /*se tutto ok continua*/
-        if((status & 0xFF) == OKCHARTRANS)
+        if(status & 0xFF == OKCHARTRANS)
         {
             i++;
             string++;
@@ -130,14 +138,23 @@ void writeToTerm(support_t* currSupport)
 
     int status;
 
+    int char_n = 0;
     int i = 0;
     /*manda i caratteri*/
     while(i<length)
     {
+        /*deve avvenire atomicamente*/
+        unsigned int currStatus = getSTATUS();
+        /*spegne gli interrupt*/
+        setSTATUS(currStatus & IECON);
+
         dev_regs->devreg[term_num]->term.transm_command = *string << BYTELENGTH | TRANSMITCHAR;
         status = SYSCALL(IOWAIT, PRNTINT, term_num, 0);
+
+        /*riaccende gli interrupt*/
+        setSTATUS(currStatus & 0x1);
         /*se tutto ok continua*/
-        if((status & 0xFF) == OKCHARTRANS)
+        if(status & 0xFF == OKCHARTRANS)
         {
             i++;
             string++;
@@ -180,9 +197,17 @@ void readFromTerm(support_t* currSupport)
     
     while (TRUE)
     {
+        /*deve avvenire atomicamente*/
+        unsigned int currStatus = getSTATUS();
+        /*spegne gli interrupt*/
+        setSTATUS(currStatus & IECON);
+
         dev_regs->devreg[term_sem]->term.recv_command = TRANSMITCHAR;
         int status = SYSCALL(IOWAIT, TERMINT, term_num, 1);
-        if ((status & 0xFF) == OKCHARTRANS)
+        
+        /*riaccende gli interrupt*/
+        setSTATUS(currStatus & 0x1);
+        if (status & 0xFF == OKCHARTRANS)
         {
             i++;
             string++;
