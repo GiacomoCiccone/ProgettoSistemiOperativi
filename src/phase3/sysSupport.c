@@ -6,7 +6,7 @@
 
 extern int devSem[SEM_NUM];
 extern int getDeviceSemaphoreIndex(int line, int device, int read);
-extern memaddr* getDevRegAddr(int int_line, int dev_n);
+extern int* getDevRegAddr(int int_line, int dev_n);
 
 void exceptHandler()
 {
@@ -113,7 +113,7 @@ void writeToPrinter(support_t* currSupport)
         }
     }
     /*rilascia mutua esclusione*/
-    SYSCALL(VERHOGEN, (int)&devSem[printer_sem], 0, 0);
+    SYSCALL(VERHOGEN, (int) &devSem[printer_sem], 0, 0);
     /*ritorna il numero di caratteri inviati*/
     currSupport->sup_exceptState[GENERALEXCEPT].reg_v0 = i;
 }

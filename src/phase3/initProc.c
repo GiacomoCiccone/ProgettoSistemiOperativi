@@ -29,12 +29,12 @@ void createUProc(int id)
 
     /*setup general exception*/
     supPool[id].sup_exceptContext[GENERALEXCEPT].c_pc = (memaddr) exceptHandler;
-    supPool[id].sup_exceptContext[GENERALEXCEPT].c_status = ALLOFF | IMON | 0x1 | TEBITON;
+    supPool[id].sup_exceptContext[GENERALEXCEPT].c_status = ALLOFF | IMON | IEPON | TEBITON;
     supPool[id].sup_exceptContext[GENERALEXCEPT].c_stackPtr = (int) topStack;
 
     /*setup pgfault exception*/
     supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_pc = (memaddr) pager;
-    supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_status = ALLOFF | IMON | 0x1 | TEBITON;
+    supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_status = ALLOFF | IMON | IEPON | TEBITON;
     supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_stackPtr = (int) (topStack + PAGESIZE);
 
     /*inizializza le page table*/
@@ -45,7 +45,6 @@ void createUProc(int id)
     }
     /*stack*/
     supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = ALLOFF | (0xBFFFF << VPNSHIFT) | (id << ASIDSHIFT);
-    
     /*chiama SYS1*/
     int status = SYSCALL(CREATEPROCESS, (int) &newState, (int) &(supPool[id]), 0);
 

@@ -100,7 +100,7 @@ void kill(int *sem)
     /*vede se aveva una mutua esclusione e la rilascia*/
     if (sem != NULL)
     {
-        SYSCALL(VERHOGEN, *sem, 0, 0);
+        SYSCALL(VERHOGEN, (int) sem, 0, 0);
     }
     /*sveglia main sem perche' il processo sta per morire*/
     SYSCALL(VERHOGEN, (int) &mainSem, 0, 0);
@@ -183,7 +183,7 @@ void pager()
         DISABLEINTERRUPTS;
 
         /*spegne il V bit*/
-        swapPool[pgVictNum].sw_pte->pte_entryLO = swapPool[pgVictNum].sw_pte->pte_entryLO & 0xFFFFFDFF;
+        swapPool[pgVictNum].sw_pte->pte_entryLO &= ~VALIDON;
         /*aggiorna il TLB*/
         updateTLB(pgVictNum);
 
