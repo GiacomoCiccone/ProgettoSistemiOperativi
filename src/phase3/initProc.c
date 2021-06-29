@@ -38,14 +38,14 @@ void createUProc(int id)
     supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_stackPtr = (int) (topStack + PAGESIZE);
 
     /*inizializza le page table*/
-    for (int i = 0; i < MAXPAGES - 1; i++)
+    for (int i = 0; i < MAXPAGES; i++)
     {
         supPool[id].sup_privatePgTbl[i].pte_entryHI = ALLOFF | ((0x80000 + i) << VPNSHIFT) | (id << ASIDSHIFT);
         supPool[id].sup_privatePgTbl[i].pte_entryLO = ALLOFF | DIRTYON;
     }
     /*stack*/
     supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = ALLOFF | (0xBFFFF << VPNSHIFT) | (id << ASIDSHIFT);
-    supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryLO = ALLOFF | DIRTYON;
+    
     /*chiama SYS1*/
     int status = SYSCALL(CREATEPROCESS, (int) &newState, (int) &(supPool[id]), 0);
 
@@ -64,7 +64,7 @@ void test()
     initTLB();
 
     /*Inizializza i semafori dei device*/
-    for (int i = 0; i < SEM_NUM; i++)
+    for (int i = 0; i < SEM_NUM - 1; i++)
     {
         devSem[i] = 1;
     }

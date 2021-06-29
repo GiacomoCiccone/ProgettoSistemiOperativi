@@ -1,6 +1,10 @@
 #ifndef VM_SUPPORT_H
 #define VM_SUPPORT_H
 
+/*macro per disabilitare ed abilitare gli interrupt*/
+#define DISABLEINTERRUPTS setSTATUS(getSTATUS() & (~IECON))
+#define ENABLEINTERRUPTS setSTATUS(getSTATUS() | IECON)
+
 /* @biref uccide i proecssi rilasciando la mutua esclusione
  * @param sem semaforo da rilasciare*/
 void kill(int *sem);

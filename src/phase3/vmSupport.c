@@ -7,8 +7,11 @@
 extern int mainSem;
 extern pcb_t* curr_proc;
 extern int getDevRegAddr(int int_line, int dev_n);
+extern int getDeviceSemaphoreIndex(int line, int device, int read);
 int swapSem;
 swap_t swapPool[UPROCMAX * 2];
+extern int devSem[49];
+
 
 void initTLB()
 {
@@ -42,41 +45,49 @@ void updateTLB(int pgVictNum)
     unsigned int present = getINDEX();
 
     /*vede se la nuova entry non e' presente nel TLB*/
-    if (((present) >> 31) != 0)
+    if ((present >> 31) != OFF)
     {
         /*cancella tutte le entry nel TLB*/
         TLBCLR();
     }
     else
     {
-        setENTRYHI(swapPool[pgVictNum].sw_pte->pte_entryHI);
         setENTRYLO(swapPool[pgVictNum].sw_pte->pte_entryLO);
+        setENTRYHI(swapPool[pgVictNum].sw_pte->pte_entryHI);
         TLBWI();
     }    
 }
 
 int flashCommand(int com, int block, int poolID, int flashDevNum)
 {
-    //devregarea_t *devReg = (devregarea_t*) RAMBASEADDR;
-    /*deve avvenire atomicamente per assicurarsi che gli interrupt avvengano dopo SYS5*/
-    unsigned int currStatus = getSTATUS();
-    /*spegne gli interrupt*/
-    setSTATUS(currStatus & IECON);
+    int semNo = getDeviceSemaphoreIndex(flashDevNum, FLASHINT, com == FLASHREAD);
+    
+    /*prende la mutua esclusione sul device register*/
+    SYSCALL(PASSEREN, (int) &devSem[semNo], 0, 0);
 
     devreg_t* flash = (devreg_t*) getDevRegAddr(FLASHINT, flashDevNum);
+    
     /*scrive DATA0 con il blocco da leggere o scrivere*/
     flash->dtp.data0 = block;
+
+    /*deve avvenire atomicamente per assicurarsi che gli interrupt avvengano dopo SYS5*/
+    DISABLEINTERRUPTS;
+
     /*scrive COMMAND con l'operazione da effettuare*/
     flash->dtp.command = (poolID << 8) | com;
     int state = SYSCALL(IOWAIT, FLASHINT, flashDevNum, 0);
+
     /*riaccende gli interrupt*/
-    setSTATUS(currStatus & 0x1);
+    ENABLEINTERRUPTS;
+
+    SYSCALL(VERHOGEN, (int) &devSem[semNo], 0, 0);
 
     if (state != 1)
     {
         /*se qualcosa e' andato storto torna -1*/
         return -1;
     }
+
     return state;
     
 }
@@ -105,7 +116,7 @@ void uTLB_RefillHandler(){
     /*calcola il numero di pagina*/
     unsigned int pg = ((currproc_s->entry_hi & 0x3FFFF000) >> VPNSHIFT) % MAXPAGES;
     
-    /*pende la page entry*/
+    /*prende la page entry*/
     pteEntry_t pe = curr_proc->p_supportStruct->sup_privatePgTbl[pg];
 
     /*carica la page entry*/
@@ -143,7 +154,6 @@ void pager()
     support_t *currSup = (support_t*) SYSCALL(GETSUPPORTPTR, 0, 0, 0);
     /*determina la causa*/
     int cause = (currSup->sup_exceptState[PGFAULTEXCEPT].cause & 0x0000007C) >> CAUSESHIFT;
-    int id = currSup->sup_asid;
 
     /*se la causa e' una TLB-modification si uccide*/
     if (cause == 1)
@@ -153,6 +163,8 @@ void pager()
 
     /*prende la mutua esclusione*/
     SYSCALL(PASSEREN, (int) &swapSem, 0, 0);
+
+    int id = currSup->sup_asid;
 
     /*calcola il page number*/
     int pgNum = ((currSup->sup_exceptState[PGFAULTEXCEPT].entry_hi) & 0x3FFFF000) >> VPNSHIFT;
@@ -167,20 +179,20 @@ void pager()
     if (swapPool[pgVictNum].sw_asid != -1)
     {
         /*deve avvenire atomicamente*/
-        unsigned int currStatus = getSTATUS();
-        /*spegne gli interrupt*/
-        setSTATUS(currStatus & IECON);
+        DISABLEINTERRUPTS;
+
         /*spegne il V bit*/
         swapPool[pgVictNum].sw_pte->pte_entryLO = swapPool[pgVictNum].sw_pte->pte_entryLO & 0xFFFFFDFF;
         /*aggiorna il TLB*/
         updateTLB(pgVictNum);
-        /*riaccende gli interrupt*/
-        setSTATUS(currStatus & 0x1);
+
+        ENABLEINTERRUPTS;
 
         /*estrae la posizione nella pool*/
-        int poolID = swapPool[pgVictNum].sw_pageNo % MAXPAGES;
+        int poolID = swapPool[pgVictNum].sw_pageNo;
         /*estrae ASID*/
         int pgVictmID = swapPool[pgVictNum].sw_asid;
+
         if (swapPool[pgVictNum].sw_pte->pte_entryLO & DIRTYON)
         {
             /*scrive nel backing store*/
@@ -191,32 +203,29 @@ void pager()
             }   
         }
     }
-
-    int poolID = pgNum % MAXPAGES;
     
     /*legge l'entry dal backing store*/
-    if(flashCommand(FLASH_READ, pgVictAddr, poolID, id - 1) != 1)
+    if(flashCommand(FLASH_READ, pgVictAddr, pgNum, id - 1) != 1)
     {   
         /*se qualcosa va storto si uccide*/
         kill(&swapSem);
     }
 
+    /*deve avvenire atomicamente*/
+    DISABLEINTERRUPTS;
+
     /*aggiorna la page table*/
-    pteEntry_t *entry = &(currSup->sup_privatePgTbl[poolID]);
+    pteEntry_t *entry = &(currSup->sup_privatePgTbl[pgNum]);
     swapPool[pgVictNum].sw_asid = id;
     swapPool[pgVictNum].sw_pageNo = pgNum;
     swapPool[pgVictNum].sw_pte = entry;
 
-    /*deve avvenire atomicamente*/
-    unsigned int currStatus = getSTATUS();
-    /*spegne gli interrupt*/
-    setSTATUS(currStatus & IECON);
     /*accende il V bit e il D bit*/
     swapPool[pgVictNum].sw_pte->pte_entryLO = pgVictAddr | VALIDON | DIRTYON;
     /*aggiorna il TLB*/
     updateTLB(pgVictNum);
-    /*riaccende gli interrupt*/
-    setSTATUS(currStatus & 0x1);
+    
+    ENABLEINTERRUPTS;
 
     /*rilascia la mutua esclusione*/
     SYSCALL(VERHOGEN, (int) &swapSem, 0, 0);

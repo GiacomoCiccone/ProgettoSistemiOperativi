@@ -89,16 +89,15 @@ void writeToPrinter(support_t* currSupport)
     while(i<length)
     {
         /*deve avvenire atomicamente*/
-        unsigned int currStatus = getSTATUS();
-        /*spegne gli interrupt*/
-        setSTATUS(currStatus & IECON);
+        DISABLEINTERRUPTS;
 
         dev_regs->dtp.data0 = *string;
         dev_regs->dtp.command = TRANSMITCHAR;
         status = SYSCALL(IOWAIT, PRNTINT, printer_num, 0);
 
         /*riaccende gli interrupt*/
-        setSTATUS(currStatus & 0x1);
+        ENABLEINTERRUPTS;
+
         /*se tutto ok continua*/
         if((status & 0xFF) == OKCHARTRANS)
         {
@@ -146,15 +145,14 @@ void writeToTerm(support_t* currSupport)
     while(i<length)
     {
         /*deve avvenire atomicamente*/
-        unsigned int currStatus = getSTATUS();
-        /*spegne gli interrupt*/
-        setSTATUS(currStatus & IECON);
+        DISABLEINTERRUPTS;
 
         dev_regs->term.transm_command = *string << BYTELENGTH | TRANSMITCHAR;
         status = SYSCALL(IOWAIT, TERMINT, term_num, 0);
 
         /*riaccende gli interrupt*/
-        setSTATUS(currStatus & 0x1);
+        ENABLEINTERRUPTS;
+
         /*se tutto ok continua*/
         if((status & 0xFF) == OKCHARTRANS)
         {
@@ -200,15 +198,14 @@ void readFromTerm(support_t* currSupport)
     while (TRUE)
     {
         /*deve avvenire atomicamente*/
-        unsigned int currStatus = getSTATUS();
-        /*spegne gli interrupt*/
-        setSTATUS(currStatus & IECON);
+        DISABLEINTERRUPTS;
 
         dev_regs->term.recv_command = TRANSMITCHAR;
         int status = SYSCALL(IOWAIT, TERMINT, term_num, 1);
         
         /*riaccende gli interrupt*/
-        setSTATUS(currStatus & 0x1);
+        ENABLEINTERRUPTS;
+        
         if ((status & 0xFF) == OKCHARTRANS)
         {
             i++;
