@@ -30,12 +30,12 @@ void createUProc(int id)
     /*setup general exception*/
     supPool[id].sup_exceptContext[GENERALEXCEPT].c_pc = (memaddr) exceptHandler;
     supPool[id].sup_exceptContext[GENERALEXCEPT].c_status = ALLOFF | IMON | IEPON | TEBITON;
-    supPool[id].sup_exceptContext[GENERALEXCEPT].c_stackPtr = (int) topStack;
+    supPool[id].sup_exceptContext[GENERALEXCEPT].c_stackPtr = (int) &(supPool[id].sup_stackMem[499]);
 
     /*setup pgfault exception*/
     supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_pc = (memaddr) pager;
     supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_status = ALLOFF | IMON | IEPON | TEBITON;
-    supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_stackPtr = (int) (topStack + PAGESIZE);
+    supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_stackPtr = (int) &(supPool[id].sup_stackGen[499]);
 
     /*inizializza le page table*/
     for (int i = 0; i < MAXPAGES; i++)
