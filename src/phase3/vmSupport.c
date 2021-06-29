@@ -39,23 +39,24 @@ void clearSwap(int asid)
 
 void updateTLB(int pgVictNum)
 {
-    /*aggiorna la entry*/
-    setENTRYHI(swapPool[pgVictNum].sw_pte->pte_entryHI);
-    TLBP();
-    unsigned int present = getINDEX();
+    // /*aggiorna la entry*/
+    // setENTRYHI(swapPool[pgVictNum].sw_pte->pte_entryHI);
+    // TLBP();
+    // unsigned int present = getINDEX();
 
-    /*vede se la nuova entry non e' presente nel TLB*/
-    if ((present >> 31) != OFF)
-    {
-        /*cancella tutte le entry nel TLB*/
-        TLBCLR();
-    }
-    else
-    {
-        setENTRYLO(swapPool[pgVictNum].sw_pte->pte_entryLO);
-        setENTRYHI(swapPool[pgVictNum].sw_pte->pte_entryHI);
-        TLBWI();
-    }    
+    // /*vede se la nuova entry non e' presente nel TLB*/
+    // if ((present >> 31) != OFF)
+    // {
+    //     /*cancella tutte le entry nel TLB*/
+    //     TLBCLR();
+    // }
+    // else
+    // {
+    //     setENTRYLO(swapPool[pgVictNum].sw_pte->pte_entryLO);
+    //     setENTRYHI(swapPool[pgVictNum].sw_pte->pte_entryHI);
+    //     TLBWI();
+    // }
+    TLBCLR();
 }
 
 int flashCommand(int com, int block, int poolID, int flashDevNum)
@@ -191,12 +192,12 @@ void pager()
         /*estrae la posizione nella pool*/
         int poolID = swapPool[pgVictNum].sw_pageNo;
         /*estrae ASID*/
-        int pgVictmID = swapPool[pgVictNum].sw_asid;
+        int pgVictimOwner = swapPool[pgVictNum].sw_asid;
 
         if (swapPool[pgVictNum].sw_pte->pte_entryLO & DIRTYON)
         {
             /*scrive nel backing store*/
-            if (flashCommand(FLASH_WRITE, pgVictAddr, poolID, pgVictmID - 1) != 1)
+            if (flashCommand(FLASH_WRITE, pgVictAddr, poolID, pgVictimOwner - 1) != 1)
             {
                 /*se qualcosa va storto si uccide*/
                 kill(&swapSem);
