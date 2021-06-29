@@ -12,9 +12,9 @@ void kill(int *sem);
 /*inizializza la swap pool mettendo a -1 tutti gli ASID*/
 void initTLB();
 
-void TLB_RefillHandler();
+void uTLB_RefillHandler();
 
-void pager();
+void TLB_excep_hanlder();
 
 /*questa funzione implementa l'algoritmo di rimpiazzamento FIFO*/
 int replace();

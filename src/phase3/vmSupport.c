@@ -109,7 +109,7 @@ void kill(int *sem)
     
 }
 
-void TLB_RefillHandler(){
+void uTLB_RefillHandler(){
     /*prende l'inizio di BIOSDATAPAGE*/
     state_t* currproc_s = (state_t*) BIOSDATAPAGE; 
 
@@ -148,7 +148,7 @@ int replace()
     return frame;
 }
 
-void pager()
+void TLB_excep_hanlder()
 {
     /*prende il current process supp struct*/
     support_t *currSup = (support_t*) SYSCALL(GETSUPPORTPTR, 0, 0, 0);

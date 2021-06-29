@@ -9,6 +9,7 @@
 static support_t supPool[UPROCMAX+1];
 int mainSem;
 int devSem[SEM_NUM];
+extern void TLB_excep_hanlder();
 
 
 void createUProc(int id)
@@ -26,16 +27,16 @@ void createUProc(int id)
 
     /*setup della support struct*/
     supPool[id].sup_asid = id;
-
+    
     /*setup general exception*/
     supPool[id].sup_exceptContext[GENERALEXCEPT].c_pc = (memaddr) exceptHandler;
     supPool[id].sup_exceptContext[GENERALEXCEPT].c_status = ALLOFF | IMON | IEPON | TEBITON;
-    supPool[id].sup_exceptContext[GENERALEXCEPT].c_stackPtr = (int) topStack;
+    supPool[id].sup_exceptContext[GENERALEXCEPT].c_stackPtr = (memaddr) topStack;
 
     /*setup pgfault exception*/
-    supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_pc = (memaddr) pager;
+    supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_pc = (memaddr) TLB_excep_hanlder;
     supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_status = ALLOFF | IMON | IEPON | TEBITON;
-    supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_stackPtr = (int) (topStack + PAGESIZE);
+    supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_stackPtr = (memaddr) (topStack + PAGESIZE);
 
     /*inizializza le page table*/
     for (int i = 0; i < MAXPAGES; i++)
@@ -45,6 +46,7 @@ void createUProc(int id)
     }
     /*stack*/
     supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = 0xBFFFF + (id << ASIDSHIFT);
+    
     /*chiama SYS1*/
     int status = SYSCALL(CREATEPROCESS, (int) &newState, (int) &(supPool[id]), 0);
 
