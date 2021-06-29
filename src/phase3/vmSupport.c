@@ -61,7 +61,7 @@ void updateTLB(int pgVictNum)
 
 int flashCommand(int com, int block, int poolID, int flashDevNum)
 {
-    int semNo = getDeviceSemaphoreIndex(flashDevNum, FLASHINT, com == FLASHREAD);
+    int semNo = getDeviceSemaphoreIndex(FLASHINT, flashDevNum, com == FLASHREAD);
     
     /*prende la mutua esclusione sul device register*/
     SYSCALL(PASSEREN, (int) &devSem[semNo], 0, 0);

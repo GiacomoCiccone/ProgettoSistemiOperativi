@@ -8,3 +8,4 @@ out/*
 *.umps
 *.kernel
 src/phase3/resources/testers/testers.tar.gz
+src/phase3/resources/phase3Config
