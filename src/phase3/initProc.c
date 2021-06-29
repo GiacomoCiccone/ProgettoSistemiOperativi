@@ -22,7 +22,7 @@ void createUProc(int id)
     newState.entry_hi = id << ASIDSHIFT;
     newState.pc_epc = newState.reg_t9 = (memaddr) UPROCSTARTADDR;
     newState.reg_sp = (int) 0xC0000000;
-    newState.status = ALLOFF | IMON | 0x1 | TEBITON | USERPON;
+    newState.status = ALLOFF | IMON | IEPON | TEBITON | USERPON;
 
     /*setup della support struct*/
     supPool[id].sup_asid = id;
@@ -40,11 +40,11 @@ void createUProc(int id)
     /*inizializza le page table*/
     for (int i = 0; i < MAXPAGES; i++)
     {
-        supPool[id].sup_privatePgTbl[i].pte_entryHI = ALLOFF | ((0x80000 + i) << VPNSHIFT) | (id << ASIDSHIFT);
+        supPool[id].sup_privatePgTbl[i].pte_entryHI = 0x80000 + (i << VPNSHIFT) + (id << ASIDSHIFT);
         supPool[id].sup_privatePgTbl[i].pte_entryLO = ALLOFF | DIRTYON;
     }
     /*stack*/
-    supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = ALLOFF | (0xBFFFF << VPNSHIFT) | (id << ASIDSHIFT);
+    supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = 0xBFFFF + (id << ASIDSHIFT);
     /*chiama SYS1*/
     int status = SYSCALL(CREATEPROCESS, (int) &newState, (int) &(supPool[id]), 0);
 
