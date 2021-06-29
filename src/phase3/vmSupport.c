@@ -12,7 +12,6 @@ int swapSem;
 swap_t swapPool[UPROCMAX * 2];
 extern int devSem[49];
 
-
 void initTLB()
 {
     /*inizialmente il semaforo della pool e' a 1*/
@@ -110,12 +109,12 @@ void kill(int *sem)
     
 }
 
-void uTLB_RefillHandler(){
+void TLB_RefillHandler(){
     /*prende l'inizio di BIOSDATAPAGE*/
     state_t* currproc_s = (state_t*) BIOSDATAPAGE; 
 
     /*calcola il numero di pagina*/
-    unsigned int pg = ((currproc_s->entry_hi & 0x3FFFF000) >> VPNSHIFT) % MAXPAGES;
+    unsigned int pg = ((currproc_s->entry_hi & 0x3FFFF000) >> VPNSHIFT);
     
     /*prende la page entry*/
     pteEntry_t pe = curr_proc->p_supportStruct->sup_privatePgTbl[pg];

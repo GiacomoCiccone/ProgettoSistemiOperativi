@@ -15,7 +15,7 @@ int dev_sem[SEM_NUM]; //device semaphores
 /*Funzioni extern*/
 extern void exceptionHandler();
 extern void test();
-extern void uTLB_RefillHandler();
+extern void TLB_RefillHandler();
 extern void exceptionHandler();
 extern void copyState();
 
@@ -24,7 +24,7 @@ int main()
 
     /*Popolamento passup vector*/
     passupvector_t *pu_vec = (passupvector_t*) PASSUPVECTOR;
-    pu_vec->tlb_refill_handler = (memaddr) uTLB_RefillHandler;
+    pu_vec->tlb_refill_handler = (memaddr) TLB_RefillHandler;
     pu_vec->tlb_refill_stackPtr = (memaddr) KERNELSTACK;
     pu_vec->exception_handler = (memaddr) exceptionHandler;
     pu_vec->exception_stackPtr = (memaddr) KERNELSTACK;

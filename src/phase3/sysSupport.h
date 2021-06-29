@@ -6,6 +6,7 @@
 #define SEM_NUM 49
 
 void exceptHandler();
+
 void sysHandler(support_t* currSupport);
 
 /*System call che fa da wrapper per la SYS2*/

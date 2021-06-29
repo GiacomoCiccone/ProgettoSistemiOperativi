@@ -20,8 +20,8 @@ void createUProc(int id)
    /*inizializza il processor state*/
     state_t newState;
     newState.entry_hi = id << ASIDSHIFT;
-    newState.pc_epc = newState.reg_t9 = (memaddr) UPROCSTARTADDR;
-    newState.reg_sp = (int) 0xC0000000;
+    newState.pc_epc = newState.reg_t9 = UPROCSTARTADDR;
+    newState.reg_sp = 0xC0000000;
     newState.status = ALLOFF | IMON | IEPON | TEBITON | USERPON;
 
     /*setup della support struct*/
@@ -63,7 +63,7 @@ void test()
     initTLB();
 
     /*Inizializza i semafori dei device*/
-    for (int i = 0; i < SEM_NUM - 1; i++)
+    for (int i = 0; i < SEM_NUM; i++)
     {
         devSem[i] = 1;
     }
