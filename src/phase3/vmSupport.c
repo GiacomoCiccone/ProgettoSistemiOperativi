@@ -157,7 +157,7 @@ void pager()
     int cause = (currSup->sup_exceptState[PGFAULTEXCEPT].cause & 0x0000007C) >> CAUSESHIFT;
 
     /*se la causa e' una TLB-modification si uccide*/
-    if (cause == 1)
+    if (cause != 2 && cause != 3)
     {
         kill(NULL);
     }
@@ -212,14 +212,14 @@ void pager()
         kill(&swapSem);
     }
 
-    /*deve avvenire atomicamente*/
-    DISABLEINTERRUPTS;
-
     /*aggiorna la page table*/
     pteEntry_t *entry = &(currSup->sup_privatePgTbl[pgNum]);
     swapPool[pgVictNum].sw_asid = id;
     swapPool[pgVictNum].sw_pageNo = pgNum;
     swapPool[pgVictNum].sw_pte = entry;
+
+    /*deve avvenire atomicamente*/
+    DISABLEINTERRUPTS;
 
     /*accende il V bit e il D bit*/
     swapPool[pgVictNum].sw_pte->pte_entryLO = pgVictAddr | VALIDON | DIRTYON;

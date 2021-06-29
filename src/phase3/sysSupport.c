@@ -71,7 +71,7 @@ void writeToPrinter(support_t* currSupport)
     /*prende il numero della stampante*/
     int printer_num = currSupport->sup_asid - 1;
     /*prende il semaforo della stampante*/
-    int printer_sem = getDeviceSemaphoreIndex(printer_num, PRNTINT, 0);
+    int printer_sem = getDeviceSemaphoreIndex(PRNTINT, printer_num, 0);
 
     devreg_t* dev_regs = (devreg_t*) getDevRegAddr(PRNTINT, printer_num);
 
@@ -127,7 +127,7 @@ void writeToTerm(support_t* currSupport)
     /*prende il numero della stampante*/
     int term_num = currSupport->sup_asid - 1;
     /*prende il semaforo della stampante*/
-    int term_sem = getDeviceSemaphoreIndex(term_num, TERMINT, 0);
+    int term_sem = getDeviceSemaphoreIndex(TERMINT, term_num, 0);
 
     devreg_t* dev_regs = (devreg_t*) getDevRegAddr(TERMINT, term_num);
 
@@ -180,7 +180,7 @@ void readFromTerm(support_t* currSupport)
     /*prende il numero del terminale*/
     int term_num = currSupport->sup_asid - 1;
     /*prende il semaforo del terminale*/
-    int term_sem = getDeviceSemaphoreIndex(term_num, TERMINT, 1);
+    int term_sem = getDeviceSemaphoreIndex(TERMINT, term_num, 1);
 
     devreg_t* dev_regs = (devreg_t*) getDevRegAddr(TERMINT, term_num);
 
@@ -205,7 +205,7 @@ void readFromTerm(support_t* currSupport)
         
         /*riaccende gli interrupt*/
         ENABLEINTERRUPTS;
-        
+
         if ((status & 0xFF) == OKCHARTRANS)
         {
             i++;
