@@ -38,23 +38,6 @@ void clearSwap(int asid)
 
 void updateTLB(int pgVictNum)
 {
-    // /*aggiorna la entry*/
-    // setENTRYHI(swapPool[pgVictNum].sw_pte->pte_entryHI);
-    // TLBP();
-    // unsigned int present = getINDEX();
-
-    // /*vede se la nuova entry non e' presente nel TLB*/
-    // if ((present >> 31) != OFF)
-    // {
-    //     /*cancella tutte le entry nel TLB*/
-    //     TLBCLR();
-    // }
-    // else
-    // {
-    //     setENTRYLO(swapPool[pgVictNum].sw_pte->pte_entryLO);
-    //     setENTRYHI(swapPool[pgVictNum].sw_pte->pte_entryHI);
-    //     TLBWI();
-    // }
     TLBCLR();
 }
 
@@ -148,7 +131,7 @@ int replace()
     return frame;
 }
 
-void TLB_excep_hanlder()
+void pager()
 {
     /*prende il current process supp struct*/
     support_t *currSup = (support_t*) SYSCALL(GETSUPPORTPTR, 0, 0, 0);

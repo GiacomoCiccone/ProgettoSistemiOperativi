@@ -9,7 +9,7 @@
 static support_t supPool[UPROCMAX+1];
 int mainSem;
 int devSem[SEM_NUM];
-extern void TLB_excep_hanlder();
+extern void pager();
 
 
 void createUProc(int id)
@@ -23,29 +23,29 @@ void createUProc(int id)
     newState.entry_hi = id << ASIDSHIFT;
     newState.pc_epc = newState.reg_t9 = UPROCSTARTADDR;
     newState.reg_sp = 0xC0000000;
-    newState.status = ALLOFF | IMON | IEPON | TEBITON | USERPON;
+    newState.status = IMON | IEPON | TEBITON | USERPON;
 
     /*setup della support struct*/
     supPool[id].sup_asid = id;
     
     /*setup general exception*/
     supPool[id].sup_exceptContext[GENERALEXCEPT].c_pc = (memaddr) exceptHandler;
-    supPool[id].sup_exceptContext[GENERALEXCEPT].c_status = ALLOFF | IMON | IEPON | TEBITON;
+    supPool[id].sup_exceptContext[GENERALEXCEPT].c_status = IMON | IEPON | TEBITON;
     supPool[id].sup_exceptContext[GENERALEXCEPT].c_stackPtr = (memaddr) topStack;
 
     /*setup pgfault exception*/
-    supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_pc = (memaddr) TLB_excep_hanlder;
-    supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_status = ALLOFF | IMON | IEPON | TEBITON;
+    supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_pc = (memaddr) pager;
+    supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_status = IMON | IEPON | TEBITON;
     supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_stackPtr = (memaddr) (topStack + PAGESIZE);
 
     /*inizializza le page table*/
     for (int i = 0; i < MAXPAGES; i++)
     {
-        supPool[id].sup_privatePgTbl[i].pte_entryHI = 0x80000 + (i << VPNSHIFT) + (id << ASIDSHIFT);
-        supPool[id].sup_privatePgTbl[i].pte_entryLO = ALLOFF | DIRTYON;
+        supPool[id].sup_privatePgTbl[i].pte_entryHI = ((0x80000 + i) << VPNSHIFT) | (id << ASIDSHIFT);
+        supPool[id].sup_privatePgTbl[i].pte_entryLO = DIRTYON;
     }
     /*stack*/
-    supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = 0xBFFFF + (id << ASIDSHIFT);
+    supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = (0xBFFFF << VPNSHIFT) | (id << ASIDSHIFT);
     
     /*chiama SYS1*/
     int status = SYSCALL(CREATEPROCESS, (int) &newState, (int) &(supPool[id]), 0);

@@ -14,7 +14,7 @@ void initTLB();
 
 void uTLB_RefillHandler();
 
-void TLB_excep_hanlder();
+void pager();
 
 /*questa funzione implementa l'algoritmo di rimpiazzamento FIFO*/
 int replace();
