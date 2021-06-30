@@ -3,8 +3,6 @@
 
 #include "../pandos_types.h"
 
-int mainSem;
-int devSem[49];
 
 void createUProc(int id);
 void test();

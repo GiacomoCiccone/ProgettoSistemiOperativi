@@ -5,14 +5,14 @@
 #include "umps3/umps/libumps.h"
 
 #define POOLSTART (RAMSTART + (32 * PAGESIZE))
+int swapSem;
+swap_t swapPool[UPROCMAX * 2];
+
 extern int mainSem;
+extern int devSem[49];
 extern pcb_t* curr_proc;
 extern int getDevRegAddr(int int_line, int dev_n);
 extern int getDeviceSemaphoreIndex(int line, int device, int read);
-int swapSem;
-swap_t swapPool[UPROCMAX * 2];
-extern int devSem[49];
-int cacca;
 
 void initTLB()
 {
@@ -51,12 +51,12 @@ int flashCommand(int com, int block, int poolID, int flashDevNum)
     SYSCALL(PASSEREN, (int) &devSem[semNo], 0, 0);
 
     devreg_t* flash = (devreg_t*) getDevRegAddr(FLASHINT, flashDevNum);
-
-    /*deve avvenire atomicamente per assicurarsi che gli interrupt avvengano dopo SYS5*/
-    DISABLEINTERRUPTS;
     
     /*scrive DATA0 con il blocco da leggere o scrivere*/
     flash->dtp.data0 = block;
+
+    /*deve avvenire atomicamente per assicurarsi che gli interrupt avvengano dopo SYS5*/
+    DISABLEINTERRUPTS;
 
     /*scrive COMMAND con l'operazione da effettuare*/
     flash->dtp.command = (poolID << 8) | com;
@@ -138,17 +138,18 @@ void pager()
 {
     /*prende il current process supp struct*/
     support_t *currSup = (support_t*) SYSCALL(GETSUPPORTPTR, 0, 0, 0);
+    
     /*determina la causa*/
     int cause = (currSup->sup_exceptState[PGFAULTEXCEPT].cause & 0x0000007C) >> CAUSESHIFT;
-
+    
     /*se la causa e' una TLB-modification si uccide*/
     if (cause != 2 && cause != 3)
     {
         kill(NULL);
     }
-
     /*prende la mutua esclusione*/
     SYSCALL(PASSEREN, (int) &swapSem, 0, 0);
+
 
     int id = currSup->sup_asid;
 

@@ -39,13 +39,14 @@ void createUProc(int id)
     supPool[id].sup_exceptContext[PGFAULTEXCEPT].c_stackPtr = (memaddr) (topStack + PAGESIZE);
 
     /*inizializza le page table*/
-    for (int i = 0; i < MAXPAGES; i++)
+    for (int i = 0; i < MAXPAGES - 1; i++)
     {
         supPool[id].sup_privatePgTbl[i].pte_entryHI = 0x80000000 + (i << VPNSHIFT) + (id << ASIDSHIFT);
         supPool[id].sup_privatePgTbl[i].pte_entryLO = DIRTYON;
     }
     /*stack*/
     supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = (0xBFFFF << VPNSHIFT) + (id << ASIDSHIFT);
+    supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryLO = DIRTYON;
     
     /*chiama SYS1*/
     int status = SYSCALL(CREATEPROCESS, (int) &newState, (int) &(supPool[id]), 0);
@@ -71,7 +72,7 @@ void test()
     }
 
     /*crea i processi*/	
-	for(int id=1; id <= UPROCMAX; id++) {
+	for(int id=1; id <= 1; id++) {
 		createUProc(id);
 	}
     
@@ -80,7 +81,7 @@ void test()
 
 	mainSem = 0;
 
-	for(int i=0; i < UPROCMAX; i++) {
+	for(int i=0; i < 1; i++) {
 		SYSCALL(PASSEREN, (int) &mainSem, 0, 0);
 	}
     
