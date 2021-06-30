@@ -44,7 +44,7 @@ void updateTLB(int pgVictNum)
 int flashCommand(int com, int block, int poolID, int flashDevNum)
 {
     int semNo = getDeviceSemaphoreIndex(FLASHINT, flashDevNum, 0);
-    
+
     /*prende la mutua esclusione sul device register*/
     SYSCALL(PASSEREN, (int) &devSem[semNo], 0, 0);
 
@@ -82,7 +82,7 @@ void kill(int *sem)
     /*vede se aveva una mutua esclusione e la rilascia*/
     if (sem != NULL)
     {
-        SYSCALL(VERHOGEN, (int) sem, 0, 0);
+        SYSCALL(VERHOGEN, *sem, 0, 0);
     }
     /*sveglia main sem perche' il processo sta per morire*/
     SYSCALL(VERHOGEN, (int) &mainSem, 0, 0);
@@ -97,7 +97,7 @@ void uTLB_RefillHandler(){
     state_t* currproc_s = (state_t*) BIOSDATAPAGE; 
 
     /*calcola il numero di pagina*/
-    unsigned int pg = ((currproc_s->entry_hi & 0x3FFFF000) >> VPNSHIFT);
+    int pg = (((currproc_s->entry_hi) & 0xFFFFF000) >> VPNSHIFT) - 0x80000;
     
     /*prende la page entry*/
     pteEntry_t pe = curr_proc->p_supportStruct->sup_privatePgTbl[pg];
@@ -150,7 +150,7 @@ void pager()
     int id = currSup->sup_asid;
 
     /*calcola il page number*/
-    int pgNum = ((currSup->sup_exceptState[PGFAULTEXCEPT].entry_hi) & 0x3FFFF000) >> VPNSHIFT;
+    int pgNum = (((currSup->sup_exceptState[PGFAULTEXCEPT].entry_hi) & 0xFFFFF000) >> VPNSHIFT) - 0x80000;
 
     /*sceglie la pagina vittima*/
     int pgVictNum = replace();
@@ -186,7 +186,7 @@ void pager()
             }   
         }
     }
-    
+
     /*legge l'entry dal backing store*/
     if(flashCommand(FLASH_READ, pgVictAddr, pgNum, id - 1) != 1)
     {   

@@ -41,11 +41,11 @@ void createUProc(int id)
     /*inizializza le page table*/
     for (int i = 0; i < MAXPAGES; i++)
     {
-        supPool[id].sup_privatePgTbl[i].pte_entryHI = ((0x80000 + i) << VPNSHIFT) | (id << ASIDSHIFT);
+        supPool[id].sup_privatePgTbl[i].pte_entryHI = 0x80000000 + (i << VPNSHIFT) + (id << ASIDSHIFT);
         supPool[id].sup_privatePgTbl[i].pte_entryLO = DIRTYON;
     }
     /*stack*/
-    supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = (0xBFFFF << VPNSHIFT) | (id << ASIDSHIFT);
+    supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = (0xBFFFF << VPNSHIFT) + (id << ASIDSHIFT);
     
     /*chiama SYS1*/
     int status = SYSCALL(CREATEPROCESS, (int) &newState, (int) &(supPool[id]), 0);
