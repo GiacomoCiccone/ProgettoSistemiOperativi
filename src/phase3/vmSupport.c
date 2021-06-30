@@ -4,6 +4,7 @@
 #include "vmSupport.h"
 #include "umps3/umps/libumps.h"
 
+#define POOLSTART (RAMSTART + (32 * PAGESIZE))
 extern int mainSem;
 extern pcb_t* curr_proc;
 extern int getDevRegAddr(int int_line, int dev_n);
@@ -11,6 +12,7 @@ extern int getDeviceSemaphoreIndex(int line, int device, int read);
 int swapSem;
 swap_t swapPool[UPROCMAX * 2];
 extern int devSem[49];
+int cacca;
 
 void initTLB()
 {
@@ -49,12 +51,12 @@ int flashCommand(int com, int block, int poolID, int flashDevNum)
     SYSCALL(PASSEREN, (int) &devSem[semNo], 0, 0);
 
     devreg_t* flash = (devreg_t*) getDevRegAddr(FLASHINT, flashDevNum);
-    
-    /*scrive DATA0 con il blocco da leggere o scrivere*/
-    flash->dtp.data0 = block;
 
     /*deve avvenire atomicamente per assicurarsi che gli interrupt avvengano dopo SYS5*/
     DISABLEINTERRUPTS;
+    
+    /*scrive DATA0 con il blocco da leggere o scrivere*/
+    flash->dtp.data0 = block;
 
     /*scrive COMMAND con l'operazione da effettuare*/
     flash->dtp.command = (poolID << 8) | com;
@@ -79,17 +81,18 @@ void kill(int *sem)
 {
     /*pulisce prima le entry nella pool*/
     clearSwap(curr_proc->p_supportStruct->sup_asid);
+
     /*vede se aveva una mutua esclusione e la rilascia*/
     if (sem != NULL)
     {
-        SYSCALL(VERHOGEN, *sem, 0, 0);
+        SYSCALL(VERHOGEN, (int) sem, 0, 0);
     }
+
     /*sveglia main sem perche' il processo sta per morire*/
     SYSCALL(VERHOGEN, (int) &mainSem, 0, 0);
 
     /*lo uccide*/
-    SYSCALL(TERMPROCESS, 0, 0, 0);
-    
+    SYSCALL(TERMPROCESS, 0, 0, 0);    
 }
 
 void uTLB_RefillHandler(){
@@ -156,7 +159,7 @@ void pager()
     int pgVictNum = replace();
 
     /*calcola l'indirizzo della pagina vitima*/
-    unsigned int pgVictAddr = FRAMEPOOLSTART + (pgVictNum * PAGESIZE);
+    unsigned int pgVictAddr = POOLSTART + (pgVictNum * PAGESIZE);
 
     /*controlla se e' occupata*/
     if (swapPool[pgVictNum].sw_asid != -1)
