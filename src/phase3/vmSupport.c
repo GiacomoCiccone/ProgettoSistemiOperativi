@@ -2,7 +2,7 @@
 #include "../pandos_types.h"
 #include "../phase2/scheduler.h"
 #include "vmSupport.h"
-#include "/usr/include/umps3/umps/libumps.h"
+#include "umps3/umps/libumps.h"
 
 #define POOLSTART (RAMSTART + (32 * PAGESIZE))
 int swapSem;
