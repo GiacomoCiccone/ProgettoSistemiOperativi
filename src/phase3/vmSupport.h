@@ -32,9 +32,8 @@ int flashCommand(int com, int block, int poolID, int flashDevNum);
  * @param asid ASID del processo che sta per essere ucciso*/
 void clearSwap(int asid);
 
-/* @brief aggiorna l'entry nel TLB
- * @param pgVictNum entry da aggiornare*/
-void updateTLB(int pgVictNum);
+/* @brief elimina tutte le entry nel TLB*/
+void updateTLB();
 
 
 #endif

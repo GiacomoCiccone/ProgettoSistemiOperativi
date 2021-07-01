@@ -34,12 +34,11 @@ void clearSwap(int asid)
         {
             /*re-inizializza tutte le entry del processo che sta per essere ucciso*/
             swapPool[i].sw_asid = -1;
-        }
-        
+        }  
     }  
 }
 
-void updateTLB(int pgVictNum)
+void updateTLB()
 {
     TLBCLR();
 }
@@ -141,21 +140,21 @@ void pager()
     support_t *currSup = (support_t*) SYSCALL(GETSUPPORTPTR, 0, 0, 0);
     
     /*determina la causa*/
-    int cause = (currSup->sup_exceptState[PGFAULTEXCEPT].cause & 0x0000007C) >> CAUSESHIFT;
+    int cause = (currSup->sup_exceptState[PGFAULTEXCEPT].cause & GETEXECCODE) >> CAUSESHIFT;
     
     /*se la causa e' una TLB-modification si uccide*/
-    if (cause != 2 && cause != 3)
+    if (cause != TLBINVLDL && cause != TLBINVLDS)
     {
         kill(NULL);
     }
     /*prende la mutua esclusione*/
     SYSCALL(PASSEREN, (int) &swapSem, 0, 0);
 
-
     int id = currSup->sup_asid;
 
     /*calcola il page number*/
     int pgNum = (((currSup->sup_exceptState[PGFAULTEXCEPT].entry_hi) & 0xFFFFF000) >> VPNSHIFT) - 0x80000;
+
 
     /*sceglie la pagina vittima*/
     int pgVictNum = replace();
@@ -172,7 +171,7 @@ void pager()
         /*spegne il V bit*/
         swapPool[pgVictNum].sw_pte->pte_entryLO &= ~VALIDON;
         /*aggiorna il TLB*/
-        updateTLB(pgVictNum);
+        updateTLB();
 
         ENABLEINTERRUPTS;
 
@@ -199,19 +198,18 @@ void pager()
         kill(&swapSem);
     }
 
+    /*deve avvenire atomicamente*/
+    DISABLEINTERRUPTS;
     /*aggiorna la page table*/
     pteEntry_t *entry = &(currSup->sup_privatePgTbl[pgNum]);
     swapPool[pgVictNum].sw_asid = id;
     swapPool[pgVictNum].sw_pageNo = pgNum;
     swapPool[pgVictNum].sw_pte = entry;
 
-    /*deve avvenire atomicamente*/
-    DISABLEINTERRUPTS;
-
-    /*accende il V bit e il D bit*/
+    /*accende il V bit e il D bit e setta PNF*/
     swapPool[pgVictNum].sw_pte->pte_entryLO = pgVictAddr | VALIDON | DIRTYON;
     /*aggiorna il TLB*/
-    updateTLB(pgVictNum);
+    updateTLB();
     
     ENABLEINTERRUPTS;
 

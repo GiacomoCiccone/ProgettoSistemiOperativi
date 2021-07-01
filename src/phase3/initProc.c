@@ -10,6 +10,7 @@ static support_t supPool[UPROCMAX+1];
 int mainSem;
 int devSem[SEM_NUM];
 extern void pager();
+extern void exceptHandler();
 
 
 void createUProc(int id)
@@ -45,7 +46,7 @@ void createUProc(int id)
         supPool[id].sup_privatePgTbl[i].pte_entryLO = DIRTYON;
     }
     /*stack*/
-    supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = (0xBFFFF << VPNSHIFT) + (id << ASIDSHIFT);
+    supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = 0xBFFFF0000 + (id << ASIDSHIFT);
     supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryLO = DIRTYON;
     
     /*chiama SYS1*/

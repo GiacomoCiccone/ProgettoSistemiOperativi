@@ -8,13 +8,14 @@ extern int devSem[SEM_NUM];
 extern int getDeviceSemaphoreIndex(int line, int device, int read);
 extern int* getDevRegAddr(int int_line, int dev_n);
 
+
 void exceptHandler()
 {
     /*prende il current process supp struct*/
     support_t *currSup = (support_t*) SYSCALL(GETSUPPORTPTR, 0, 0, 0);
     /*determina la causa*/
-    int cause = (currSup->sup_exceptState[GENERALEXCEPT].cause & 0x0000007C) >> CAUSESHIFT;
-    
+    int cause = ((currSup->sup_exceptState[GENERALEXCEPT].cause) & GETEXECCODE) >> CAUSESHIFT;
+
     /*se e' una syscall la gestisce*/
     if (cause == SYSEXCEPTION)
     {
