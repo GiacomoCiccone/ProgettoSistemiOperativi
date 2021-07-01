@@ -105,7 +105,7 @@
     },
     "execution-rom": "/usr/share/umps3/exec.rom.umps",
     "num-processors": 1,
-    "num-ram-frames": 128,
+    "num-ram-frames": 500,
     "symbol-table": {
         "asid": 64,
         "file": "../out/kernel.stab.umps"

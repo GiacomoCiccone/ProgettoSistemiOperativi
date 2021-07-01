@@ -72,7 +72,7 @@ void test()
     }
 
     /*crea i processi*/	
-	for(int id=1; id <= 1; id++) {
+	for(int id=1; id <= UPROCMAX; id++) {
 		createUProc(id);
 	}
     
@@ -81,7 +81,7 @@ void test()
 
 	mainSem = 0;
 
-	for(int i=0; i < 1; i++) {
+	for(int i=0; i < UPROCMAX; i++) {
 		SYSCALL(PASSEREN, (int) &mainSem, 0, 0);
 	}
     

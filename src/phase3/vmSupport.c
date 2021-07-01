@@ -2,7 +2,7 @@
 #include "../pandos_types.h"
 #include "../phase2/scheduler.h"
 #include "vmSupport.h"
-#include "umps3/umps/libumps.h"
+#include "/usr/include/umps3/umps/libumps.h"
 
 #define POOLSTART (RAMSTART + (32 * PAGESIZE))
 int swapSem;
@@ -183,7 +183,7 @@ void pager()
         if (swapPool[pgVictNum].sw_pte->pte_entryLO & DIRTYON)
         {
             /*scrive nel backing store*/
-            if (flashCommand(FLASH_WRITE, pgVictAddr, poolID, pgVictimOwner - 1) != 1)
+            if (flashCommand(FLASHWRITE, pgVictAddr, poolID, pgVictimOwner - 1) != 1)
             {
                 /*se qualcosa va storto si uccide*/
                 kill(&swapSem);
@@ -192,7 +192,7 @@ void pager()
     }
 
     /*legge l'entry dal backing store*/
-    if(flashCommand(FLASH_READ, pgVictAddr, pgNum, id - 1) != 1)
+    if(flashCommand(FLASHREAD, pgVictAddr, pgNum, id - 1) != 1)
     {   
         /*se qualcosa va storto si uccide*/
         kill(&swapSem);
