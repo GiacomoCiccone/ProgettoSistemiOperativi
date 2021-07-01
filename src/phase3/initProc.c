@@ -72,7 +72,8 @@ void test()
     }
 
     /*crea i processi*/	
-	for(int id=1; id <= UPROCMAX; id++) {
+	for(int id=1; id <= UPROCMAX; id++)
+    {
 		createUProc(id);
 	}
     

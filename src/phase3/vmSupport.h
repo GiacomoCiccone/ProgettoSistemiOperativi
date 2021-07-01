@@ -22,8 +22,8 @@ int replace();
 
 /* @brief funzione per le operazioni I/O sui dispostivi flash
  * @param com comando da eseguire (Read o Write)
- * @param block buffer di 4K da cui leggere o in cui scrivere
- * @param poolID locazione per I/O nella swap pool
+ * @param buffer di 4K da cui leggere o in cui scrivere
+ * @param device block number
  * @param flashDevNum device flash su cui operare
  */
 int flashCommand(int com, int block, int poolID, int flashDevNum);

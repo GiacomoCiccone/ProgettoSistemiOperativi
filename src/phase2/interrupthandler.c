@@ -25,20 +25,18 @@ memaddr* getDevRegAddr(int int_line, int dev_n)
 
 memaddr* getInterruptLineAddr(int n)
 {
-    return (memaddr*) (0x1000002C + (0x04 * (n-3)));
+    return (memaddr*) (0x10000040 + (0x04 * (n-3)));
 }
 
-memaddr* getInterruptingLineAddr(int n)
-{
-    return (memaddr*) (0x10000040 + (0x04 * n));
-}
 
 int getHighestPriorityIntLine(int intmap)
 {
     for(int i=0; i<8; i++)
     {
         if(intmap & pow2[i])
+        {
             return i;
+        }
     }
     return -1;
 }
@@ -50,7 +48,9 @@ int getHighestPriorityIntDevice(memaddr* int_line_addr)
     for(int i=0; i<8; i++)
     {
         if(bitmap & pow2[i])
+        {
             return i;
+        }
     }
     return -1;
 }
@@ -95,7 +95,7 @@ void interruptHandler(){
 
         break;
     case 3 ... 7: ;//interrupt lines
-        memaddr* interrupting_line_addr = getInterruptLineAddr((int)int_line); //calcola l'indirizzo dell'interrupt line
+        memaddr* interrupting_line_addr = getInterruptLineAddr(int_line); //calcola l'indirizzo dell'interrupt line
         int dev_n = getHighestPriorityIntDevice(interrupting_line_addr);  //controlla il device con priorità maggiore che ha causato l'interrupt
         devreg_t* d_r = (devreg_t*) getDevRegAddr(int_line, dev_n);       //calcola il device register
         int status_code;

@@ -14,6 +14,7 @@ extern pcb_t* curr_proc;
 extern int getDevRegAddr(int int_line, int dev_n);
 extern int getDeviceSemaphoreIndex(int line, int device, int read);
 
+
 void initTLB()
 {
     /*inizialmente il semaforo della pool e' a 1*/
@@ -43,7 +44,7 @@ void updateTLB(int pgVictNum)
     TLBCLR();
 }
 
-int flashCommand(int com, int block, int poolID, int flashDevNum)
+int flashCommand(int com, int block, int devBlockNum, int flashDevNum)
 {
     int semNo = getDeviceSemaphoreIndex(FLASHINT, flashDevNum, 0);
 
@@ -59,7 +60,7 @@ int flashCommand(int com, int block, int poolID, int flashDevNum)
     DISABLEINTERRUPTS;
 
     /*scrive COMMAND con l'operazione da effettuare*/
-    flash->dtp.command = (poolID << 8) | com;
+    flash->dtp.command = (devBlockNum << 8) | com;
     int state = SYSCALL(IOWAIT, FLASHINT, flashDevNum, 0);
 
     /*riaccende gli interrupt*/
@@ -176,14 +177,14 @@ void pager()
         ENABLEINTERRUPTS;
 
         /*estrae la posizione nella pool*/
-        int poolID = swapPool[pgVictNum].sw_pageNo;
+        int devBlockNum = swapPool[pgVictNum].sw_pageNo;
         /*estrae ASID*/
         int pgVictimOwner = swapPool[pgVictNum].sw_asid;
 
         if (swapPool[pgVictNum].sw_pte->pte_entryLO & DIRTYON)
         {
             /*scrive nel backing store*/
-            if (flashCommand(FLASHWRITE, pgVictAddr, poolID, pgVictimOwner - 1) != 1)
+            if (flashCommand(FLASHWRITE, pgVictAddr, devBlockNum, pgVictimOwner - 1) != 1)
             {
                 /*se qualcosa va storto si uccide*/
                 kill(&swapSem);
