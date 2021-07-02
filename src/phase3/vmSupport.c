@@ -14,8 +14,6 @@ extern pcb_t* curr_proc;
 extern int getDevRegAddr(int int_line, int dev_n);
 extern int getDeviceSemaphoreIndex(int line, int device, int read);
 
-int cacca;
-
 
 void initTLB()
 {
@@ -61,7 +59,7 @@ int flashCommand(int com, int block, int devBlockNum, int flashDevNum)
     DISABLEINTERRUPTS;
 
     /*scrive COMMAND con l'operazione da effettuare*/
-    flash->dtp.command = (devBlockNum << 8) | com;
+    flash->dtp.command = ((devBlockNum) << 8) | com;
     int state = SYSCALL(IOWAIT, FLASHINT, flashDevNum, 0);
 
     /*riaccende gli interrupt*/
