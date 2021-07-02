@@ -46,7 +46,7 @@ void createUProc(int id)
         supPool[id].sup_privatePgTbl[i].pte_entryLO = DIRTYON;
     }
     /*stack*/
-    supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = 0xBFFFF0000 + (id << ASIDSHIFT);
+    supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryHI = 0xBFFFF000 + (id << ASIDSHIFT);
     supPool[id].sup_privatePgTbl[MAXPAGES - 1].pte_entryLO = DIRTYON;
     
     /*chiama SYS1*/
@@ -83,7 +83,8 @@ void test()
 
 	mainSem = 0;
 
-	for(int i=0; i < UPROCMAX; i++) {
+	for(int i=0; i < UPROCMAX; i++)
+    {
 		SYSCALL(PASSEREN, (int) &mainSem, 0, 0);
 	}
     

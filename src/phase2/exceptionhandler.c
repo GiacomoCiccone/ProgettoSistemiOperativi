@@ -44,7 +44,7 @@ void exceptionHandler()
     /*Preleva l'exception state*/
     iep_s = (state_t*)BIOSDATAPAGE;
     /*Preleva il campo ExcCode*/
-    int exc_code = (iep_s->cause & 0x3C) >> 2;
+    int exc_code = (iep_s->cause & 0x3C) >> CAUSESHIFT;
 
     switch(exc_code)
     {

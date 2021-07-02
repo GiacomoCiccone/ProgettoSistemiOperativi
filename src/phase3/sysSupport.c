@@ -8,7 +8,6 @@ extern int devSem[SEM_NUM];
 extern int getDeviceSemaphoreIndex(int line, int device, int read);
 extern int* getDevRegAddr(int int_line, int dev_n);
 
-
 void exceptHandler()
 {
     /*prende il current process supp struct*/

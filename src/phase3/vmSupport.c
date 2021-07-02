@@ -14,6 +14,8 @@ extern pcb_t* curr_proc;
 extern int getDevRegAddr(int int_line, int dev_n);
 extern int getDeviceSemaphoreIndex(int line, int device, int read);
 
+int cacca;
+
 
 void initTLB()
 {
@@ -102,12 +104,9 @@ void uTLB_RefillHandler(){
     /*calcola il numero di pagina*/
     int pg = (((currproc_s->entry_hi) & 0xFFFFF000) >> VPNSHIFT) - 0x80000;
     
-    /*prende la page entry*/
-    pteEntry_t pe = curr_proc->p_supportStruct->sup_privatePgTbl[pg];
-
     /*carica la page entry*/
-    setENTRYHI(pe.pte_entryHI);
-    setENTRYLO(pe.pte_entryLO);
+    setENTRYHI(curr_proc->p_supportStruct->sup_privatePgTbl[pg].pte_entryHI);
+    setENTRYLO(curr_proc->p_supportStruct->sup_privatePgTbl[pg].pte_entryLO);
 
     TLBWR();
 
@@ -206,8 +205,9 @@ void pager()
     swapPool[pgVictNum].sw_pageNo = pgNum;
     swapPool[pgVictNum].sw_pte = entry;
 
-    /*accende il V bit e il D bit e setta PNF*/
-    swapPool[pgVictNum].sw_pte->pte_entryLO = pgVictAddr | VALIDON | DIRTYON;
+    /*accende il V bit e setta PNF*/
+    swapPool[pgVictNum].sw_pte->pte_entryLO = pgVictAddr | VALIDON;
+
     /*aggiorna il TLB*/
     updateTLB();
     
@@ -217,6 +217,6 @@ void pager()
     SYSCALL(VERHOGEN, (int) &swapSem, 0, 0);
     
     /*ritorna il controllo a current e ritenta*/
-    LDST(&(currSup->sup_exceptState[PGFAULTEXCEPT]));
+    LDST((state_t *) &(currSup->sup_exceptState[PGFAULTEXCEPT]));
        
 }
