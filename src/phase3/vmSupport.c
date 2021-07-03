@@ -202,7 +202,7 @@ void pager()
 
     /*legge l'entry dal backing store*/
     if(flashCommand(FLASHREAD, pgVictAddr, pgNum, id - 1) != 1)
-    {   
+    {    
         /*se qualcosa va storto si uccide*/
         kill(&swapSem);
     }

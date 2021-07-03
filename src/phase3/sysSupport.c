@@ -9,6 +9,8 @@ extern int getDeviceSemaphoreIndex(int line, int device, int read);
 extern int* getDevRegAddr(int int_line, int dev_n);
 
 
+
+
 void exceptHandler()
 {
     /*prende il current process supp struct*/
@@ -100,7 +102,7 @@ void writeToPrinter(support_t* currSupport)
         ENABLEINTERRUPTS;
 
         /*se tutto ok continua*/
-        if((status & 0xFF) == OKCHARTRANS)
+        if((status & 0x000000FF) == OKCHARTRANS)
         {
             i++;
             string++;
@@ -109,7 +111,7 @@ void writeToPrinter(support_t* currSupport)
         else
         {
             /*ritorniamo il numero negato dello status*/
-            i = -(status & 0xFF);
+            i = -(status & 0x000000FF);
             break; //errore
         }
     }
@@ -134,7 +136,9 @@ void writeToTerm(support_t* currSupport)
 
     /*se l'indirizzo e' fuori dalla memoria virtuale o la lunghezza e' zero trap*/
     if((int)string < KUSEG || length <= 0 || length > MAXSTRLENG)
+    {
         kill(NULL); //trap
+    }
 
     /*prende la mutua esclusione*/
     SYSCALL(PASSEREN, (int) &devSem[term_sem], 0, 0);
@@ -155,7 +159,7 @@ void writeToTerm(support_t* currSupport)
         ENABLEINTERRUPTS;
 
         /*se tutto ok continua*/
-        if((status & 0xFF) == OKCHARTRANS)
+        if((status & 0x000000FF) == OKCHARTRANS)
         {
             i++;
             string++;
@@ -164,7 +168,7 @@ void writeToTerm(support_t* currSupport)
         else
         {
             /*ritorniamo il numero negato dello status*/
-            i = -(status & 0xFF);
+            i = -(status & 0x000000FF);
             break; //errore
         }
     }
@@ -207,13 +211,14 @@ void readFromTerm(support_t* currSupport)
         /*riaccende gli interrupt*/
         ENABLEINTERRUPTS;
 
-        if ((status & 0xFF) == OKCHARTRANS)
+        if ((status & 0x000000FF) == OKCHARTRANS)
         {
             i++;
-            *string = status >> BYTELENGTH;
+            *string = (status & 0x0000FF00) >> BYTELENGTH;
             string++;
+
             /*se e' una new line*/
-            if ((status >> BYTELENGTH) == 0x0A)
+            if ((status & 0x0000FF00) >> BYTELENGTH == '\n')
             {
                 /*interrompe*/
                 break;
@@ -222,10 +227,11 @@ void readFromTerm(support_t* currSupport)
         }
         else
         {
-            i = -(status & 0xFF);
+            i = -(status & 0x000000FF);
             break;
         }
     }
-    SYSCALL(PASSEREN, (int) &devSem[term_sem], 0, 0);
+
+    SYSCALL(VERHOGEN, (int) &devSem[term_sem], 0, 0);
     currSupport->sup_exceptState[GENERALEXCEPT].reg_v0 = i;
 }
