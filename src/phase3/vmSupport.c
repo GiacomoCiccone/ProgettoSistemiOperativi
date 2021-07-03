@@ -14,7 +14,6 @@ extern pcb_t* curr_proc;
 extern int getDevRegAddr(int int_line, int dev_n);
 extern int getDeviceSemaphoreIndex(int line, int device, int read);
 
-
 void initTLB()
 {
     /*inizialmente il semaforo della pool e' a 1*/
@@ -102,6 +101,13 @@ void uTLB_RefillHandler(){
     /*calcola il numero di pagina*/
     int pg = (((currproc_s->entry_hi) & 0xFFFFF000) >> VPNSHIFT) - 0x80000;
     
+    /*check per vedere se e' lo stack*/
+    if (pg > 30 || pg < 0)
+    {
+        pg = 31;
+    }
+    
+    
     /*carica la page entry*/
     setENTRYHI(curr_proc->p_supportStruct->sup_privatePgTbl[pg].pte_entryHI);
     setENTRYLO(curr_proc->p_supportStruct->sup_privatePgTbl[pg].pte_entryLO);
@@ -151,6 +157,12 @@ void pager()
 
     /*calcola il page number*/
     int pgNum = (((currSup->sup_exceptState[PGFAULTEXCEPT].entry_hi) & 0xFFFFF000) >> VPNSHIFT) - 0x80000;
+
+    /*check per vedere se e' lo stack*/
+    if (pgNum > 30 || pgNum < 0)
+    {
+        pgNum = 31;
+    }
 
 
     /*sceglie la pagina vittima*/
@@ -203,8 +215,8 @@ void pager()
     swapPool[pgVictNum].sw_pageNo = pgNum;
     swapPool[pgVictNum].sw_pte = entry;
 
-    /*accende il V bit e setta PNF*/
-    swapPool[pgVictNum].sw_pte->pte_entryLO = pgVictAddr | VALIDON;
+    /*accende il V bit, il D bit e setta PNF*/
+    swapPool[pgVictNum].sw_pte->pte_entryLO = pgVictAddr | VALIDON | DIRTYON;
 
     /*aggiorna il TLB*/
     updateTLB();
