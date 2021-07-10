@@ -6,18 +6,20 @@
 #define ENABLEINTERRUPTS setSTATUS(getSTATUS() | IECON)
 
 
-/* @biref uccide i proecssi rilasciando la mutua esclusione
+/* @brief uccide i proecssi rilasciando la mutua esclusione
  * @param sem semaforo da rilasciare*/
 void kill(int *sem);
 
-/*inizializza la swap pool mettendo a -1 tutti gli ASID*/
+/* @brief inizializza la swap pool mettendo a -1 tutti gli ASID*/
 void initTLB();
 
+/* @brief gestisce le eccezioni tlb refill*/
 void uTLB_RefillHandler();
 
+/* @brief gestisce la paginazione della memoria*/
 void pager();
 
-/*questa funzione implementa l'algoritmo di rimpiazzamento FIFO*/
+/* @brief questa funzione implementa l'algoritmo di rimpiazzamento FIFO*/
 int replace();
 
 /* @brief funzione per le operazioni I/O sui dispostivi flash
@@ -34,6 +36,5 @@ void clearSwap(int asid);
 
 /* @brief elimina tutte le entry nel TLB*/
 void updateTLB();
-
 
 #endif
