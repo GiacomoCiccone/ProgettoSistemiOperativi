@@ -12,4 +12,4 @@ Istruzioni per la compilazione:
 ## Note
 - Nel file `src/phase3/sysSupport.c` riga `23` quel comando non dovrebbe essere fatto, in quanto il program counter e' stato gia' incrementato dal gestore delle eccezioni di phase2.
 - La procedura si chiude correttamente, tuttavia deve esserci qualche errore con la scrittura su printer che ne' noi, ne' il tutor siamo riusciti ad individuare. Per accertarsi di questo controllate il file relativo alla stampante numero 6 dopo l'esecuzione del programma. Dovrebbe contenere la stringa `printTest is ok` ma purtroppo non e' cosi.
-- Il makefile deve essere aggiustato in quanto ricompila sempre tutto anche se non sono state fatte modifiche (puo' essere inefficiente).
+- Il makefile deve essere aggiustato in quanto ricompila sempre tutto anche se non sono state fatte modifiche (solo in phase2 e phase3, in phase1 e' corretto).
