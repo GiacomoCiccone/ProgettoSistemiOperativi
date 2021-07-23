@@ -1,9 +1,14 @@
-Per quest'ultima fase abbiamo seguito la struttura consigliata dal manuale, dividendo il codice in 3 file:
-- initProc.c che implementa la funzione test
-- pager.c che implementa il pager
-- sysSupport.c che implementa le system call e il general exception handler.
-  
-Sono state riutilizzate alcune funzioni di fase 2, ad esempio per il calcolo degli indici del semaforo.
-Abbiamo commentato il codice riga per riga per fornire una spiegazione ad ogni istruzione.
+# Progetto Sistemi oprativi UNIBO 2020-2021
 
-Per compilare basta fare make nella cartella src/phase3, ed anche make nella cartella testers.
+Istruzioni per la compilazione:
+- Per compilare l'intero progetto entrare in `src/phase3/` ed eseguire il comando `make`.
+- Entrare in `src/phase3/resources/testers` ed eseguire `make`.
+- Assicurarsi di avere [umps3](https://github.com/virtualsquare/umps3) installato e lanciare `umps3` da terminale.
+- Scegliere la configurazione in `src/phase3/resources/phase3Config`.
+- Avviare la macchina. **:warning: Attenzione: Potrebbe essere necessario modificare dei path nella configurazione, in particolare aggiungendo il livello `/local/` dopo `/usr/`.**
+- Eseguire il programma.
+
+
+## Note
+- Nel file `src/phase3/sysSupport.c` riga `23` quel comando non dovrebbe essere fatto, in quanto il program counter e' stato gia' incrementato dal gestore delle eccezioni di phase2.
+- La procedura si chiude correttamente, tuttavia deve esserci qualche errore con la scrittura su printer che ne' noi, ne' il tutor siamo riusciti ad individuare. Per accertarsi di questo controllate il file relativo alla stampante numero 6 dopo l'esecuzione del programma. Dovrebbe contenere la stringa `printTest is ok` ma purtroppo non e' cosi.
