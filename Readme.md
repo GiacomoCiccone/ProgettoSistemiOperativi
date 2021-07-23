@@ -1,9 +1,9 @@
 # Progetto Sistemi oprativi UNIBO 2020-2021
 
 ## Autori
-- Giacomo Ciccone
-- Mauro Molari
-- Ricky Wanga
+- [Giacomo Ciccone](https://github.com/agente-drif)
+- [Mauro Molari](https://github.com/m-m-0-0)
+- [Ricky Wanga](https://github.com/RickyWanga)
 
 ## Istruzioni per la compilazione
 - Per compilare l'intero progetto entrare in `src/phase3/` ed eseguire il comando `make`.
