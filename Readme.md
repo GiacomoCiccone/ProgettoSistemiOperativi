@@ -1,4 +1,4 @@
-# Progetto Sistemi oprativi UNIBO 2020-2021
+# Progetto Sistemi operativi UNIBO 2020-2021
 
 ## Autori
 - [Giacomo Ciccone](https://github.com/agente-drif)
