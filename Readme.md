@@ -1,6 +1,6 @@
 # Progetto Sistemi oprativi UNIBO 2020-2021
 
-Istruzioni per la compilazione:
+## Istruzioni per la compilazione
 - Per compilare l'intero progetto entrare in `src/phase3/` ed eseguire il comando `make`.
 - Entrare in `src/phase3/resources/testers` ed eseguire `make`.
 - Assicurarsi di avere [umps3](https://github.com/virtualsquare/umps3) installato e lanciare `umps3` da terminale.
