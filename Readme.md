@@ -1,5 +1,10 @@
 # Progetto Sistemi oprativi UNIBO 2020-2021
 
+## Autori
+- Giacomo Ciccone
+- Mauro Molari
+- Ricky Wanga
+
 ## Istruzioni per la compilazione
 - Per compilare l'intero progetto entrare in `src/phase3/` ed eseguire il comando `make`.
 - Entrare in `src/phase3/resources/testers` ed eseguire `make`.
